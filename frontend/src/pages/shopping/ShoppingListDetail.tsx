@@ -1063,7 +1063,6 @@ const ShoppingListDetail = () => {
                                 TOTAL
                               </td>
                               {comparison.stores.map(store => {
-                                const storeWithSavings = calculateSavings(comparison.stores).find(s => s.store_id === store.store_id);
                                 return (
                                   <td key={store.store_id} className="px-4 py-3 text-center">
                                     <div className="text-lg text-gray-900">

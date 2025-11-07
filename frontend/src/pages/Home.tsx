@@ -336,7 +336,7 @@ const Home: React.FC = () => {
                         <ProductCard
                           product={product}
                           onFavoriteToggle={handleFavoriteToggle}
-                          isFavorite={product.is_favorite}
+                          isFavorite={favorites.some(fav => fav.id === product.id)}
                         />
                       </div>
                     ))}

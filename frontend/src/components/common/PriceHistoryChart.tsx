@@ -35,7 +35,7 @@ interface PriceHistoryChartProps {
 }
 
 const PriceHistoryChart = ({
-  dailyMedians,
+  dailyMedians: _dailyMedians,
   allPrices,
   currency = 'BGN',
   onPeriodChange,
@@ -123,7 +123,7 @@ const PriceHistoryChart = ({
   const options: ChartOptions<'line'> = {
     responsive: true,
     maintainAspectRatio: false,
-    onClick: (event, elements) => {
+    onClick: (_event, elements) => {
       if (elements.length > 0) {
         const dataIndex = elements[0].index;
         const dataPoint = priceData[dataIndex] as any;
