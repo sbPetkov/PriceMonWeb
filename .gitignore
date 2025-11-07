@@ -1,0 +1,72 @@
+# Environment variables
+.env
+.env.dev
+.env.prod
+.env.local
+*.env
+
+# Exclude development/planning docs (keep README, DEPLOYMENT, WORKFLOW)
+DEBUG_NETWORK.md
+DEVELOPMENT_PLAN.md
+EMAIL_AUTH_UPDATE.md
+PHASE2_COMPLETE.md
+PHASE5_COMPLETE.md
+PRODUCT_WORKFLOW_FIXES.md
+QUICK_START.md
+START_SERVERS.md
+TEST_PHASE1.md
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+*.egg-info/
+.pytest_cache/
+
+# Django
+db.sqlite3
+db.sqlite3-journal
+*.log
+media/
+staticfiles/
+static_root/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# React build
+frontend/build/
+frontend/dist/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+*.pid
+*.seed
+*.pid.lock
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Keep sample files
+!.env.sample

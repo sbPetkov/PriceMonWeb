@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  django:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pricemon_django_dev
+    env_file:
+      - ./backend/.env.dev
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    command: python manage.py runserver 0.0.0.0:8000
+    environment:
+      - DEBUG=True
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: pricemon_frontend_dev
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    command: npm run dev
+    environment:
+      - NODE_ENV=development
