@@ -45,12 +45,24 @@ const PriceHistoryChart = ({
   const symbol = currency === 'BGN' ? 'лв' : '€';
   const [selectedPrice, setSelectedPrice] = useState<ProductPrice | null>(null);
 
-  // Convert EUR to display currency if needed
-  const convertPrice = (priceEur: number) => {
-    if (currency === 'BGN') {
-      return priceEur * 1.95583; // Fixed BGN/EUR rate
+  // Convert price to display currency
+  // Use the original entered price when possible to avoid precision loss from double conversion
+  const convertPrice = (price: ProductPrice) => {
+    const enteredPrice = parseFloat(price.price_entered);
+
+    // If the entered currency matches the display currency, use the original value
+    if (price.currency_entered === currency) {
+      return enteredPrice;
     }
-    return priceEur;
+
+    // Otherwise, convert between currencies
+    if (currency === 'BGN' && price.currency_entered === 'EUR') {
+      return enteredPrice * 1.95583; // EUR to BGN
+    } else if (currency === 'EUR' && price.currency_entered === 'BGN') {
+      return enteredPrice / 1.95583; // BGN to EUR
+    }
+
+    return enteredPrice;
   };
 
   // Generate date range based on period
@@ -95,7 +107,7 @@ const PriceHistoryChart = ({
 
     return {
       x: dateIndex + dayFraction, // Position dot based on exact time
-      y: convertPrice(parseFloat(price.price_eur)),
+      y: convertPrice(price),
       storeName: price.store.name,
       date: format(parseISO(price.created_at), 'MMM dd, yyyy HH:mm'),
       priceIndex: idx // Store original index to find the price object
@@ -186,7 +198,7 @@ const PriceHistoryChart = ({
   };
 
   // Calculate statistics from all prices
-  const priceValues = allPrices.map(p => convertPrice(parseFloat(p.price_eur)));
+  const priceValues = allPrices.map(p => convertPrice(p));
   const minPrice = priceValues.length > 0 ? Math.min(...priceValues) : 0;
   const maxPrice = priceValues.length > 0 ? Math.max(...priceValues) : 0;
   const avgPrice = priceValues.length > 0 ? priceValues.reduce((a, b) => a + b, 0) / priceValues.length : 0;
@@ -288,7 +300,7 @@ const PriceHistoryChart = ({
             <div className="mb-6 text-center py-4 bg-primary-50 rounded-lg">
               <div className="text-sm text-gray-600 mb-1">Price</div>
               <div className="text-4xl font-bold text-primary">
-                {convertPrice(parseFloat(selectedPrice.price_eur)).toFixed(2)} {symbol}
+                {convertPrice(selectedPrice).toFixed(2)} {symbol}
               </div>
             </div>
 
