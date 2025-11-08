@@ -12,6 +12,27 @@ const ProductDetails = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
+  // Helper function to convert price to user's preferred currency
+  const convertToPreferredCurrency = (priceEntered: string, currencyEntered: 'BGN' | 'EUR'): string => {
+    const preferredCurrency = user?.preferred_currency || 'BGN';
+    const price = parseFloat(priceEntered);
+
+    // If currencies match, return as-is
+    if (currencyEntered === preferredCurrency) {
+      return `${price.toFixed(2)} ${preferredCurrency}`;
+    }
+
+    // Convert between currencies
+    const BGN_TO_EUR_RATE = 1.95583;
+    if (preferredCurrency === 'BGN' && currencyEntered === 'EUR') {
+      return `${(price * BGN_TO_EUR_RATE).toFixed(2)} BGN`;
+    } else if (preferredCurrency === 'EUR' && currencyEntered === 'BGN') {
+      return `${(price / BGN_TO_EUR_RATE).toFixed(2)} EUR`;
+    }
+
+    return `${price.toFixed(2)} ${currencyEntered}`;
+  };
+
   const [product, setProduct] = useState<Product | null>(null);
   const [stores, setStores] = useState<Store[]>([]);
   const [priceHistory, setPriceHistory] = useState<PriceHistory | null>(null);
@@ -449,7 +470,9 @@ const ProductDetails = () => {
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
                 <div>
                   <p className="text-xs sm:text-sm text-green-700 font-medium mb-1">Best Price (Last 30 Days)</p>
-                  <p className="text-2xl sm:text-3xl font-bold text-green-600">{product.best_price.display_price}</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-green-600">
+                    {convertToPreferredCurrency(product.best_price.price_entered, product.best_price.currency_entered)}
+                  </p>
                   <p className="text-xs sm:text-sm text-green-700 mt-1">at {product.best_price.store.name}</p>
                 </div>
                 <button
@@ -471,7 +494,7 @@ const ProductDetails = () => {
               <PriceHistoryChart
                 dailyMedians={priceHistory.daily_medians}
                 allPrices={priceHistory.all_prices}
-                currency={product?.best_price?.currency_entered || 'BGN'}
+                currency={user?.preferred_currency || 'BGN'}
                 onPeriodChange={setChartPeriod}
                 currentPeriod={chartPeriod}
               />
@@ -537,7 +560,9 @@ const ProductDetails = () => {
                       </div>
                       <div className="text-right">
                         <div className="flex items-center gap-2">
-                          <p className="text-2xl font-bold text-gray-900">{price.display_price}</p>
+                          <p className="text-2xl font-bold text-gray-900">
+                            {convertToPreferredCurrency(price.price_entered, price.currency_entered)}
+                          </p>
                           {trend && (
                             <div className="flex items-center">
                               {trend === 'up' && (
