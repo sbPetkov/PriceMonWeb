@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Html5Qrcode } from 'html5-qrcode';
+import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 
 interface BarcodeScannerProps {
   onScanSuccess: (barcode: string) => void;
@@ -58,7 +58,24 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '' }: BarcodeS
     }
 
     try {
-      const scanner = new Html5Qrcode('barcode-scanner-region');
+      // Configure scanner to support multiple barcode formats
+      const config = {
+        formatsToSupport: [
+          // Common barcode formats for retail products
+          Html5QrcodeSupportedFormats.EAN_13,      // Most common retail barcode
+          Html5QrcodeSupportedFormats.EAN_8,       // Shorter EAN format
+          Html5QrcodeSupportedFormats.UPC_A,       // North American barcode
+          Html5QrcodeSupportedFormats.UPC_E,       // Compressed UPC
+          Html5QrcodeSupportedFormats.CODE_128,    // Versatile barcode format
+          Html5QrcodeSupportedFormats.CODE_39,     // Industrial barcode
+          Html5QrcodeSupportedFormats.CODE_93,     // Compact barcode
+          Html5QrcodeSupportedFormats.ITF,         // Interleaved 2 of 5
+          Html5QrcodeSupportedFormats.QR_CODE,     // QR codes (bonus)
+        ],
+        verbose: false,
+      };
+
+      const scanner = new Html5Qrcode('barcode-scanner-region', config);
       scannerRef.current = scanner;
 
       await scanner.start(

@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import type { ProductList } from '../../types';
 
 interface ProductCardProps {
@@ -9,6 +10,28 @@ interface ProductCardProps {
 
 const ProductCard = ({ product, onFavoriteToggle, isFavorite = false }: ProductCardProps) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  // Helper function to convert price to user's preferred currency
+  const convertToPreferredCurrency = (priceEntered: string, currencyEntered: 'BGN' | 'EUR'): string => {
+    const preferredCurrency = user?.preferred_currency || 'BGN';
+    const price = parseFloat(priceEntered);
+
+    // If currencies match, return as-is
+    if (currencyEntered === preferredCurrency) {
+      return `${price.toFixed(2)} ${preferredCurrency}`;
+    }
+
+    // Convert between currencies
+    const BGN_TO_EUR_RATE = 1.95583;
+    if (preferredCurrency === 'BGN' && currencyEntered === 'EUR') {
+      return `${(price * BGN_TO_EUR_RATE).toFixed(2)} BGN`;
+    } else if (preferredCurrency === 'EUR' && currencyEntered === 'BGN') {
+      return `${(price / BGN_TO_EUR_RATE).toFixed(2)} EUR`;
+    }
+
+    return `${price.toFixed(2)} ${currencyEntered}`;
+  };
 
   // Get 2-letter abbreviation from product name
   const getAbbreviation = (name: string) => {
@@ -95,7 +118,7 @@ const ProductCard = ({ product, onFavoriteToggle, isFavorite = false }: ProductC
             <div>
               <p className="text-xs text-gray-500 mb-0.5">Best Price</p>
               <p className="text-lg font-bold text-green-600">
-                {product.best_price.price_entered} {product.best_price.currency_entered}
+                {convertToPreferredCurrency(product.best_price.price_entered, product.best_price.currency_entered)}
               </p>
             </div>
             <div className="text-xs text-gray-500 text-right">
