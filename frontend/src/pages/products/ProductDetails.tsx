@@ -1008,6 +1008,7 @@ const ProductDetails = () => {
                             >
                               <p className="font-medium text-gray-900">{store.name}</p>
                               {store.address && <p className="text-sm text-gray-500">{store.address}</p>}
+                              {store.city && <p className="text-xs text-gray-400">{store.city}</p>}
                             </button>
                           ))}
                           <button
@@ -1052,6 +1053,7 @@ const ProductDetails = () => {
                     <div>
                       <p className="font-medium text-green-900">{selectedStore.name}</p>
                       {selectedStore.address && <p className="text-sm text-green-700">{selectedStore.address}</p>}
+                      {selectedStore.city && <p className="text-xs text-green-600">{selectedStore.city}</p>}
                     </div>
                     <button
                       type="button"
