@@ -20,6 +20,14 @@ if [ ! -f "./backend/.env.prod" ]; then
     exit 1
 fi
 
+# Check if frontend .env.production exists
+if [ ! -f "./frontend/.env.production" ]; then
+    echo -e "${RED}❌ Error: frontend/.env.production not found!${NC}"
+    echo "Please create .env.production with VITE_API_URL configuration."
+    echo "Example: VITE_API_URL=https://your-domain.com/api"
+    exit 1
+fi
+
 # Pull latest code (if using git)
 echo -e "${BLUE}📥 Pulling latest code...${NC}"
 # git pull origin main  # Uncomment if using git
