@@ -66,6 +66,12 @@ class Store(models.Model):
         blank=True,
         default=''
     )
+    city = models.CharField(
+        max_length=100,
+        help_text="City where the store is located",
+        blank=True,
+        default=''
+    )
     logo_url = models.URLField(blank=True, null=True)
     website = models.URLField(blank=True, null=True)
 

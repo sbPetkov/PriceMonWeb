@@ -6,7 +6,6 @@ import { getErrorMessage, getFieldErrors } from '../services/api';
 import type { FieldErrors } from '../types';
 
 interface ProfileFormData {
-  username: string;
   first_name: string;
   last_name: string;
   preferred_currency: 'BGN' | 'EUR';
@@ -24,7 +23,6 @@ const EditProfile = () => {
 
   // Profile form state
   const [profileData, setProfileData] = useState<ProfileFormData>({
-    username: user?.username || '',
     first_name: user?.first_name || '',
     last_name: user?.last_name || '',
     preferred_currency: user?.preferred_currency || 'BGN',
@@ -183,28 +181,6 @@ const EditProfile = () => {
                   disabled
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
                 />
-              </div>
-
-              {/* Username */}
-              <div>
-                <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
-                  Username
-                </label>
-                <input
-                  id="username"
-                  name="username"
-                  type="text"
-                  value={profileData.username}
-                  onChange={handleProfileChange}
-                  placeholder="Enter username"
-                  className={`w-full px-4 py-3 border ${
-                    profileFieldErrors.username ? 'border-red-500' : 'border-gray-300'
-                  } rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all`}
-                  disabled={isUpdatingProfile}
-                />
-                {profileFieldErrors.username && (
-                  <p className="mt-1 text-sm text-red-600">{profileFieldErrors.username}</p>
-                )}
               </div>
 
               {/* First Name */}

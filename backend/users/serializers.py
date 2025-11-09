@@ -85,18 +85,10 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'username',
             'first_name',
             'last_name',
             'preferred_currency',
         ]
-
-    def validate_username(self, value):
-        """Ensure username is unique if being changed"""
-        user = self.instance
-        if value and User.objects.filter(username=value).exclude(pk=user.pk).exists():
-            raise serializers.ValidationError("This username is already taken.")
-        return value
 
 
 class PasswordChangeSerializer(serializers.Serializer):
