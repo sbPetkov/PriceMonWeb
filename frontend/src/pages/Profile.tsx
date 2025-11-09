@@ -58,7 +58,7 @@ const Profile = () => {
               </div>
               <div className="flex-1">
                 <h2 className="text-2xl font-bold text-gray-900">
-                  {user.first_name || user.username}
+                  {user.first_name || 'User'}
                 </h2>
                 <p className="text-gray-500">{user.email}</p>
                 <div className={`inline-flex items-center gap-2 mt-2 px-3 py-1 rounded-full bg-gradient-to-r ${badge?.color}`}>
