@@ -2,9 +2,10 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getProductById, createPrice, getStores, createStore, getProductPriceHistory, toggleFavorite } from '../../services/productService';
 import { verifyPrice, checkUserVotes } from '../../services/userActivityService';
+import { getShoppingLists, createShoppingList, addItem } from '../../services/shoppingListService';
 import { getErrorMessage, getFieldErrors } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
-import type { Product, Store, ProductPriceCreateRequest, FieldErrors, PriceHistory } from '../../types';
+import type { Product, Store, ProductPriceCreateRequest, FieldErrors, PriceHistory, ShoppingListListItem } from '../../types';
 import PriceHistoryChart from '../../components/common/PriceHistoryChart';
 
 const ProductDetails = () => {
@@ -42,6 +43,16 @@ const ProductDetails = () => {
   const [error, setError] = useState('');
   const [isFavorite, setIsFavorite] = useState(false);
   const [userVotes, setUserVotes] = useState<Record<number, 'positive' | 'negative'>>({});
+
+  // Shopping List Modal State
+  const [showAddToListModal, setShowAddToListModal] = useState(false);
+  const [shoppingLists, setShoppingLists] = useState<ShoppingListListItem[]>([]);
+  const [selectedListId, setSelectedListId] = useState<number | null>(null);
+  const [itemQuantity, setItemQuantity] = useState(1);
+  const [isAddingToList, setIsAddingToList] = useState(false);
+  const [showCreateList, setShowCreateList] = useState(false);
+  const [newListName, setNewListName] = useState('');
+  const [isCreatingList, setIsCreatingList] = useState(false);
 
   // Add Price Modal State
   const [showAddPrice, setShowAddPrice] = useState(false);
@@ -216,6 +227,64 @@ const ProductDetails = () => {
       setIsFavorite(result.is_favorite);
     } catch (err) {
       alert(getErrorMessage(err));
+    }
+  };
+
+  const handleOpenAddToList = async () => {
+    setShowAddToListModal(true);
+    try {
+      const lists = await getShoppingLists();
+      setShoppingLists(lists);
+      if (lists.length > 0) {
+        setSelectedListId(lists[0].id);
+      }
+    } catch (err) {
+      console.error('Failed to load shopping lists:', err);
+    }
+  };
+
+  const handleCreateList = async () => {
+    if (!newListName.trim()) {
+      alert('Please enter a list name');
+      return;
+    }
+
+    setIsCreatingList(true);
+    try {
+      const newList = await createShoppingList({ name: newListName.trim() });
+      // Re-fetch the lists to get the correct format
+      const lists = await getShoppingLists();
+      setShoppingLists(lists);
+      setSelectedListId(newList.id);
+      setShowCreateList(false);
+      setNewListName('');
+      alert('Shopping list created successfully!');
+    } catch (err) {
+      alert(getErrorMessage(err));
+    } finally {
+      setIsCreatingList(false);
+    }
+  };
+
+  const handleAddToList = async () => {
+    if (!selectedListId || !product) {
+      alert('Please select a shopping list');
+      return;
+    }
+
+    setIsAddingToList(true);
+    try {
+      await addItem(selectedListId, {
+        product_id: product.id,
+        quantity: itemQuantity,
+      });
+      alert('Product added to shopping list!');
+      setShowAddToListModal(false);
+      setItemQuantity(1);
+    } catch (err) {
+      alert(getErrorMessage(err));
+    } finally {
+      setIsAddingToList(false);
     }
   };
 
@@ -415,22 +484,35 @@ const ProductDetails = () => {
                   <div className="flex-1">
                     <h1 className="text-xl sm:text-3xl font-bold text-gray-900">{product.name}</h1>
                   </div>
-                  {/* Favorite Button */}
-                  <button
-                    onClick={handleFavoriteToggle}
-                    className="flex-shrink-0 p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                    title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-                  >
-                    {isFavorite ? (
-                      <svg className="w-6 h-6 sm:w-7 sm:h-7 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+                  {/* Action Buttons */}
+                  <div className="flex items-center gap-2">
+                    {/* Add to Shopping List Button */}
+                    <button
+                      onClick={handleOpenAddToList}
+                      className="flex-shrink-0 p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                      title="Add to shopping list"
+                    >
+                      <svg className="w-6 h-6 sm:w-7 sm:h-7 text-gray-400 hover:text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                       </svg>
-                    ) : (
-                      <svg className="w-6 h-6 sm:w-7 sm:h-7 text-gray-400 hover:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                      </svg>
-                    )}
-                  </button>
+                    </button>
+                    {/* Favorite Button */}
+                    <button
+                      onClick={handleFavoriteToggle}
+                      className="flex-shrink-0 p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                      title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+                    >
+                      {isFavorite ? (
+                        <svg className="w-6 h-6 sm:w-7 sm:h-7 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+                        </svg>
+                      ) : (
+                        <svg className="w-6 h-6 sm:w-7 sm:h-7 text-gray-400 hover:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
                 </div>
                 <p className="text-base sm:text-lg text-gray-600 mb-2 sm:mb-4">{product.brand}</p>
 
@@ -717,6 +799,144 @@ const ProductDetails = () => {
           </div>
         </div>
       </div>
+
+      {/* Add to Shopping List Modal */}
+      {showAddToListModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowAddToListModal(false)}>
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 sm:p-8 my-auto" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Add to Shopping List</h3>
+
+            {shoppingLists.length === 0 && !showCreateList ? (
+              /* No Lists - Prompt to Create */
+              <div className="text-center py-8">
+                <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">No Shopping Lists Yet</h4>
+                <p className="text-gray-500 mb-6">Create your first shopping list to get started</p>
+                <button
+                  onClick={() => setShowCreateList(true)}
+                  className="bg-primary hover:bg-primary/90 text-white font-semibold py-2 px-6 rounded-lg transition-all"
+                >
+                  Create Shopping List
+                </button>
+              </div>
+            ) : showCreateList ? (
+              /* Create New List Form */
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    List Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={newListName}
+                    onChange={(e) => setNewListName(e.target.value)}
+                    placeholder="e.g., Weekly Groceries"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    disabled={isCreatingList}
+                  />
+                </div>
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowCreateList(false);
+                      setNewListName('');
+                    }}
+                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 rounded-lg transition-all"
+                    disabled={isCreatingList}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCreateList}
+                    disabled={isCreatingList || !newListName.trim()}
+                    className="flex-1 bg-primary hover:bg-primary/90 text-white font-semibold py-3 rounded-lg transition-all disabled:opacity-50"
+                  >
+                    {isCreatingList ? 'Creating...' : 'Create List'}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* Select List and Quantity */
+              <div className="space-y-4">
+                {/* Shopping List Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Shopping List <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={selectedListId || ''}
+                    onChange={(e) => setSelectedListId(parseInt(e.target.value))}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
+                    disabled={isAddingToList}
+                  >
+                    {shoppingLists.map((list) => (
+                      <option key={list.id} value={list.id}>
+                        {list.name} ({list.item_count} items)
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Quantity Input */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Quantity <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={itemQuantity}
+                    onChange={(e) => setItemQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    disabled={isAddingToList}
+                  />
+                </div>
+
+                {/* Create New List Link */}
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateList(true)}
+                    className="text-primary hover:text-primary/80 text-sm font-medium flex items-center gap-1"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Create New List
+                  </button>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAddToListModal(false);
+                      setItemQuantity(1);
+                    }}
+                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 rounded-lg transition-all"
+                    disabled={isAddingToList}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleAddToList}
+                    disabled={isAddingToList || !selectedListId}
+                    className="flex-1 bg-primary hover:bg-primary/90 text-white font-semibold py-3 rounded-lg transition-all disabled:opacity-50"
+                  >
+                    {isAddingToList ? 'Adding...' : 'Add to List'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Add Price Modal */}
       {showAddPrice && (
