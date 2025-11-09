@@ -47,7 +47,7 @@ export const getStores = async (filters?: StoreFilters): Promise<PaginatedRespon
   return response.data;
 };
 
-export const createStore = async (store: { name: string; address: string }): Promise<Store> => {
+export const createStore = async (store: { name: string; address: string; city: string }): Promise<Store> => {
   const response = await api.post('/products/stores/', store);
   return response.data;
 };

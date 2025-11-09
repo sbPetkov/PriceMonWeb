@@ -38,7 +38,7 @@ class StoreSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Store
-        fields = ['id', 'name', 'chain', 'address', 'logo_url', 'website', 'primary_color', 'is_active', 'created_at']
+        fields = ['id', 'name', 'chain', 'address', 'city', 'logo_url', 'website', 'primary_color', 'is_active', 'created_at']
         read_only_fields = ['created_at']
 
 
