@@ -14,6 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
             'id',
             'username',
             'email',
+            'email_verified',
             'first_name',
             'last_name',
             'preferred_currency',
@@ -26,6 +27,7 @@ class UserSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             'id',
+            'email_verified',
             'trust_score',
             'total_products_added',
             'total_prices_added',

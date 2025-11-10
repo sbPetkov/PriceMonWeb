@@ -8,6 +8,8 @@ from .views import (
     PasswordChangeView,
     LogoutView,
     check_email_exists,
+    verify_email,
+    resend_verification_email,
 )
 
 app_name = 'users'
@@ -18,6 +20,10 @@ urlpatterns = [
     path('login/', CustomTokenObtainPairView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+    # Email verification
+    path('verify-email/<str:uid>/<str:token>/', verify_email, name='verify_email'),
+    path('resend-verification/', resend_verification_email, name='resend_verification'),
 
     # User profile
     path('me/', UserProfileView.as_view(), name='profile'),

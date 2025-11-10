@@ -1,4 +1,4 @@
-from rest_framework import status, generics, permissions
+from rest_framework import status, generics, permissions, serializers
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -14,6 +14,7 @@ from .serializers import (
     UserUpdateSerializer,
     PasswordChangeSerializer
 )
+from .utils import send_verification_email, verify_token
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -25,6 +26,12 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         # Django's TokenObtainPairSerializer expects 'username' field
         # but we want to accept 'email' field instead
         data = super().validate(attrs)
+
+        # Check if email is verified
+        if not self.user.email_verified:
+            raise serializers.ValidationError({
+                'email': 'Please verify your email address before logging in. Check your inbox for the verification email.'
+            })
 
         # Add user data to response
         data['user'] = UserSerializer(self.user).data
@@ -50,14 +57,19 @@ class UserRegistrationView(APIView):
         if serializer.is_valid():
             user = serializer.save()
 
-            # Generate JWT tokens
-            refresh = RefreshToken.for_user(user)
+            # Send verification email
+            email_sent = send_verification_email(user, request)
+
+            if not email_sent:
+                # If email fails, still register user but warn them
+                return Response({
+                    'message': 'User registered successfully, but we encountered an error sending the verification email. Please contact support.',
+                    'email': user.email
+                }, status=status.HTTP_201_CREATED)
 
             return Response({
-                'user': UserSerializer(user).data,
-                'access': str(refresh.access_token),
-                'refresh': str(refresh),
-                'message': 'User registered successfully'
+                'message': 'Registration successful! Please check your email to verify your account.',
+                'email': user.email
             }, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -162,3 +174,77 @@ def check_email_exists(request):
     exists = User.objects.filter(email=email).exists()
 
     return Response({'exists': exists})
+
+
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+def verify_email(request, uid, token):
+    """
+    Verify user email with token.
+    GET /api/auth/verify-email/<uid>/<token>/
+    """
+    # Verify the token and get the user
+    user = verify_token(uid, token)
+
+    if not user:
+        return Response({
+            'error': 'Invalid or expired verification link. Please request a new verification email.'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    # Check if already verified
+    if user.email_verified:
+        return Response({
+            'message': 'Email already verified. You can now log in.',
+            'email': user.email
+        }, status=status.HTTP_200_OK)
+
+    # Mark email as verified
+    user.email_verified = True
+    user.save()
+
+    return Response({
+        'message': 'Email verified successfully! You can now log in.',
+        'email': user.email
+    }, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def resend_verification_email(request):
+    """
+    Resend verification email.
+    POST /api/auth/resend-verification/
+    """
+    email = request.data.get('email')
+
+    if not email:
+        return Response({
+            'error': 'Email is required'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        user = User.objects.get(email=email)
+
+        # Check if already verified
+        if user.email_verified:
+            return Response({
+                'message': 'Email is already verified. You can log in now.'
+            }, status=status.HTTP_200_OK)
+
+        # Send verification email
+        email_sent = send_verification_email(user, request)
+
+        if not email_sent:
+            return Response({
+                'error': 'Failed to send verification email. Please try again later.'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response({
+            'message': 'Verification email sent! Please check your inbox.'
+        }, status=status.HTTP_200_OK)
+
+    except User.DoesNotExist:
+        # Don't reveal if email exists or not for security
+        return Response({
+            'message': 'If an account with this email exists, a verification email will be sent.'
+        }, status=status.HTTP_200_OK)
