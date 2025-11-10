@@ -9,7 +9,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   error: string | null;
   login: (credentials: LoginRequest) => Promise<void>;
-  register: (data: RegisterRequest) => Promise<void>;
+  register: (data: RegisterRequest) => Promise<{ message: string; email: string }>;
   logout: () => Promise<void>;
   updateUser: (data: Partial<User>) => Promise<void>;
   clearError: () => void;
@@ -63,13 +63,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const register = async (data: RegisterRequest) => {
+  const register = async (data: RegisterRequest): Promise<{ message: string; email: string }> => {
     try {
       setIsLoading(true);
       setError(null);
 
       const response = await authService.register(data);
-      setUser(response.user);
+      // Don't set user - they need to verify email first
+      return response;
     } catch (err) {
       const errorMessage = getErrorMessage(err);
       setError(errorMessage);

@@ -10,16 +10,19 @@ import type {
 class AuthService {
   /**
    * Register a new user
+   * Note: After registration, user must verify email before logging in
    */
-  async register(data: RegisterRequest): Promise<AuthResponse> {
-    const response = await api.post<AuthResponse>('/auth/register/', data);
+  async register(data: RegisterRequest): Promise<{ message: string; email: string }> {
+    const response = await api.post<{ message: string; email: string }>('/auth/register/', data);
+    // No tokens are returned - user must verify email first
+    return response.data;
+  }
 
-    // Save tokens
-    if (response.data.access && response.data.refresh) {
-      localStorage.setItem('access_token', response.data.access);
-      localStorage.setItem('refresh_token', response.data.refresh);
-    }
-
+  /**
+   * Resend verification email
+   */
+  async resendVerificationEmail(email: string): Promise<{ message: string }> {
+    const response = await api.post<{ message: string }>('/auth/resend-verification/', { email });
     return response.data;
   }
 
