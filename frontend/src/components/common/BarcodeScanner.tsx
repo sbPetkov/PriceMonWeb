@@ -9,6 +9,7 @@ interface BarcodeScannerProps {
 
 const BarcodeScanner = ({ onScanSuccess, onScanError, className = '' }: BarcodeScannerProps) => {
   const scannerRef = useRef<Html5Qrcode | null>(null);
+  const isScanningRef = useRef(false);
   const [isScanning, setIsScanning] = useState(false);
   const [error, setError] = useState<string>('');
   const [cameras, setCameras] = useState<any[]>([]);
@@ -23,24 +24,41 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '' }: BarcodeS
         if (devices && devices.length > 0) {
           setCameras(devices);
 
-          // Smart camera selection - prefer back/rear camera
-          const backCamera = devices.find(device => {
+          // Enhanced camera selection - prefer main back camera, avoid ultra-wide
+          // Priority: main > back > rear > environment > first camera
+          let preferredCamera = devices[0]; // Default to first
+
+          // Try to find the best camera
+          for (const device of devices) {
             const label = device.label.toLowerCase();
-            return label.includes('back') ||
-                   label.includes('rear') ||
-                   label.includes('environment') ||
-                   label.includes('facing back');
-          });
 
-          // Auto-select the best camera
-          const preferredCamera = backCamera?.id || devices[0].id;
-          setSelectedCamera(preferredCamera);
+            // Highest priority: main camera (avoids ultra-wide on Android)
+            if (label.includes('main') || label.includes('wide 1') || label.includes('camera 0')) {
+              preferredCamera = device;
+              break;
+            }
 
-          // Automatically start scanning with back camera
-          if (preferredCamera) {
+            // Second priority: back camera (but not ultra-wide)
+            if ((label.includes('back') || label.includes('rear')) &&
+                !label.includes('ultra') &&
+                !label.includes('wide 2')) {
+              preferredCamera = device;
+              // Don't break, keep looking for "main"
+            }
+
+            // Third priority: environment facing
+            if (label.includes('environment') && !preferredCamera) {
+              preferredCamera = device;
+            }
+          }
+
+          setSelectedCamera(preferredCamera.id);
+
+          // Automatically start scanning with selected camera
+          if (preferredCamera.id) {
             // Small delay to ensure DOM is ready
             setTimeout(() => {
-              startScanningWithCamera(preferredCamera);
+              startScanningWithCamera(preferredCamera.id);
             }, 100);
           }
         } else {
@@ -67,9 +85,31 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '' }: BarcodeS
     getCameras();
   }, [onScanError]);
 
+  // Handle page visibility change to stop camera when tab is hidden
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden && isScanningRef.current) {
+        console.log('Tab hidden, stopping camera...');
+        stopScanning();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
   const startScanningWithCamera = async (cameraId: string) => {
     if (!cameraId) {
       setError('No camera selected');
+      return;
+    }
+
+    // Prevent multiple simultaneous starts
+    if (isScanningRef.current || scannerRef.current) {
+      console.log('Scanner already running, skipping start');
       return;
     }
 
@@ -108,10 +148,15 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '' }: BarcodeS
             }
           ] as any,
         },
-        (decodedText) => {
+        async (decodedText) => {
           // Success callback when barcode is scanned
+          console.log('Barcode scanned:', decodedText);
+
+          // Stop the camera FIRST before calling the callback
+          await stopScanning();
+
+          // Then call the success callback (which will navigate away)
           onScanSuccess(decodedText);
-          stopScanning();
         },
         (errorMessage) => {
           // Error callback - usually fires continuously while scanning
@@ -120,12 +165,15 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '' }: BarcodeS
         }
       );
 
+      isScanningRef.current = true;
       setIsScanning(true);
       setError('');
     } catch (err: any) {
       const errorMsg = err?.message || 'Failed to start camera';
       setError(errorMsg);
       if (onScanError) onScanError(errorMsg);
+      scannerRef.current = null;
+      isScanningRef.current = false;
     }
   };
 
@@ -134,32 +182,52 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '' }: BarcodeS
   };
 
   const stopScanning = async () => {
-    if (scannerRef.current && isScanning) {
-      try {
-        await scannerRef.current.stop();
-        // Don't call clear() to prevent white screen
-        scannerRef.current = null;
-        setIsScanning(false);
-      } catch (err) {
-        console.error('Error stopping scanner:', err);
-        setIsScanning(false);
-      }
+    if (!scannerRef.current || !isScanningRef.current) {
+      return;
+    }
+
+    try {
+      console.log('Stopping camera scanner...');
+
+      // Stop the camera stream
+      await scannerRef.current.stop();
+
+      // Clear the scanner instance
+      scannerRef.current.clear();
+
+      // Reset refs and state
+      scannerRef.current = null;
+      isScanningRef.current = false;
+      setIsScanning(false);
+
+      console.log('Camera stopped successfully');
+    } catch (err) {
+      console.error('Error stopping scanner:', err);
+      // Force reset even on error
+      scannerRef.current = null;
+      isScanningRef.current = false;
+      setIsScanning(false);
     }
   };
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (scannerRef.current && isScanning) {
-        scannerRef.current.stop().catch(console.error);
+      if (scannerRef.current && isScanningRef.current) {
+        console.log('Component unmounting, cleaning up scanner...');
+        scannerRef.current.stop().then(() => {
+          if (scannerRef.current) {
+            scannerRef.current.clear();
+          }
+        }).catch(console.error);
       }
     };
-  }, [isScanning]);
+  }, []);
 
   const handleCameraChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newCamera = e.target.value;
     setSelectedCamera(newCamera);
-    if (isScanning) {
+    if (isScanningRef.current) {
       await stopScanning();
       // Restart with new camera
       setTimeout(() => {
