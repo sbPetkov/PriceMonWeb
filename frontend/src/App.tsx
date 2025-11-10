@@ -29,23 +29,7 @@ const App: React.FC = () => {
   return (
     <BrowserRouter>
       <AuthProvider>
-
-        {/* ===== Cookie consent banner (global) ===== */}
-        <CookieConsent
-          location="bottom"
-          buttonText="Accept"
-          declineButtonText="Reject"
-          enableDeclineButton
-          cookieName="pm_cookie"
-          style={{ background: "#2B373B" }}
-          buttonStyle={{ background: "#4CAF50", color: "#fff", fontSize: "14px" }}
-          declineButtonStyle={{ background: "#777", color: "#fff", fontSize: "14px" }}
-          onAccept={() => loadAdsense()}  // Load Google ads only after consent
-        >
-          We use cookies to personalize ads and analyze traffic. You can accept or decline.
-        </CookieConsent>
-
-        <Routes>
+          <Routes>
           {/* Public routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
