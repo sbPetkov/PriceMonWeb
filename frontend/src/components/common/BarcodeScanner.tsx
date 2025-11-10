@@ -96,17 +96,16 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '' }: BarcodeS
           qrbox: { width: 280, height: 120 }, // Wider box for barcodes (they're horizontal)
           aspectRatio: 1.777778, // 16:9 aspect ratio for better camera view
           // Advanced camera settings
-          advanced: [
-            {
-              zoom: { min: 1.0, max: 3.0, step: 0.1 }
-            },
-            {
-              focusMode: 'continuous' // Continuous autofocus for better barcode detection
-            },
-            {
-              torch: false // Flashlight off by default
-            }
-          ] as any,
+          videoConstraints: {
+  deviceId: cameraId,
+  facingMode: "environment",
+  width: { ideal: 1920 },
+  height: { ideal: 1080 },
+  ...( {
+    focusMode: "continuous",
+    advanced: [{ zoom: 2.0 }]
+  } as any)
+}
         },
         (decodedText) => {
           // Success callback when barcode is scanned
