@@ -285,11 +285,10 @@ def request_password_reset(request):
         }, status=status.HTTP_200_OK)
 
     except User.DoesNotExist:
-        # Don't reveal if email exists or not for security
-        # Still return success to prevent email enumeration
+        # Return error if email doesn't exist
         return Response({
-            'message': 'If an account with this email exists, a password reset email will be sent.'
-        }, status=status.HTTP_200_OK)
+            'error': 'No account found with this email address. Please check your email or create a new account.'
+        }, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['POST'])
