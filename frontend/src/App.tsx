@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import MainLayout from './components/layout/MainLayout';
+import CookieConsent from "react-cookie-consent";
+import { loadAdsense } from "./utils/loadAdsense";
 
 // Pages
 import Login from './pages/auth/Login';
@@ -27,6 +29,22 @@ const App: React.FC = () => {
   return (
     <BrowserRouter>
       <AuthProvider>
+
+        {/* ===== Cookie consent banner (global) ===== */}
+        <CookieConsent
+          location="bottom"
+          buttonText="Accept"
+          declineButtonText="Reject"
+          enableDeclineButton
+          cookieName="pm_cookie"
+          style={{ background: "#2B373B" }}
+          buttonStyle={{ background: "#4CAF50", color: "#fff", fontSize: "14px" }}
+          declineButtonStyle={{ background: "#777", color: "#fff", fontSize: "14px" }}
+          onAccept={() => loadAdsense()}  // Load Google ads only after consent
+        >
+          We use cookies to personalize ads and analyze traffic. You can accept or decline.
+        </CookieConsent>
+
         <Routes>
           {/* Public routes */}
           <Route path="/login" element={<Login />} />
