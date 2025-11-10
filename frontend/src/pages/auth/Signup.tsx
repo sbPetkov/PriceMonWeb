@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { getFieldErrors } from '../../services/api';
 import Button from '../../components/common/Button';
@@ -7,7 +7,6 @@ import Input from '../../components/common/Input';
 import type { RegisterRequest } from '../../types';
 
 const Signup: React.FC = () => {
-  const navigate = useNavigate();
   const { register, error: authError, clearError } = useAuth();
 
   const [formData, setFormData] = useState<RegisterRequest>({
