@@ -3,8 +3,6 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import MainLayout from './components/layout/MainLayout';
-import CookieConsent from "react-cookie-consent";
-import { loadAdsense } from "./utils/loadAdsense";
 
 // Pages
 import Login from './pages/auth/Login';
