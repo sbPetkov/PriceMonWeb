@@ -21,6 +21,8 @@ const Signup: React.FC = () => {
 
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState('');
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -80,8 +82,10 @@ const Signup: React.FC = () => {
 
     try {
       setIsLoading(true);
-      await register(formData);
-      navigate('/'); // Redirect to home after successful registration
+      const response = await register(formData);
+      // Show success message instead of navigating
+      setRegistrationSuccess(true);
+      setRegisteredEmail(response.email);
     } catch (err) {
       const errors = getFieldErrors(err);
       setFieldErrors(errors);
@@ -133,27 +137,74 @@ const Signup: React.FC = () => {
 
           {/* Signup Card */}
           <div className="card animate-fadeIn">
-            <div className="mb-6">
-              <h2 className="text-2xl sm:text-3xl font-bold text-text-primary mb-2">
-                Create Account
-              </h2>
-              <p className="text-text-secondary">
-                Join thousands of smart shoppers
-              </p>
-            </div>
+            {registrationSuccess ? (
+              /* Success Message */
+              <div className="text-center py-8">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
 
-            {/* Error message */}
-            {authError && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start space-x-3">
-                <svg className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
-                <p className="text-sm text-red-800">{authError}</p>
+                <h2 className="text-2xl font-bold text-text-primary mb-3">
+                  Check Your Email! 📧
+                </h2>
+
+                <p className="text-text-secondary mb-6">
+                  We've sent a verification link to:
+                </p>
+
+                <p className="font-medium text-primary mb-6">
+                  {registeredEmail}
+                </p>
+
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-left">
+                  <p className="text-sm text-blue-900 font-medium mb-2">
+                    📌 Next Steps:
+                  </p>
+                  <ol className="text-sm text-blue-800 space-y-2 list-decimal list-inside">
+                    <li>Check your email inbox (and spam folder)</li>
+                    <li>Click the verification link in the email</li>
+                    <li>Return here to log in</li>
+                  </ol>
+                </div>
+
+                <Link to="/login">
+                  <Button variant="primary" size="lg" fullWidth>
+                    Go to Login
+                  </Button>
+                </Link>
+
+                <p className="mt-4 text-sm text-text-secondary">
+                  Didn't receive the email?{' '}
+                  <button className="text-primary hover:underline font-medium">
+                    Resend verification email
+                  </button>
+                </p>
               </div>
-            )}
+            ) : (
+              <>
+                <div className="mb-6">
+                  <h2 className="text-2xl sm:text-3xl font-bold text-text-primary mb-2">
+                    Create Account
+                  </h2>
+                  <p className="text-text-secondary">
+                    Join thousands of smart shoppers
+                  </p>
+                </div>
 
-            {/* Signup Form */}
-            <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Error message */}
+                {authError && (
+                  <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start space-x-3">
+                    <svg className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                    <p className="text-sm text-red-800">{authError}</p>
+                  </div>
+                )}
+
+                {/* Signup Form */}
+                <form onSubmit={handleSubmit} className="space-y-4">
               <Input
                 id="email"
                 name="email"
@@ -253,31 +304,33 @@ const Signup: React.FC = () => {
               </div>
             </form>
 
-            {/* Divider */}
-            <div className="mt-6 mb-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300"></div>
+                {/* Divider */}
+                <div className="mt-6 mb-6">
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="px-4 bg-surface text-text-secondary">
+                        Already have an account?
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-surface text-text-secondary">
-                    Already have an account?
-                  </span>
-                </div>
-              </div>
-            </div>
 
-            {/* Sign in link */}
-            <Link to="/login">
-              <Button
-                type="button"
-                variant="outline"
-                size="lg"
-                fullWidth
-              >
-                Sign In
-              </Button>
-            </Link>
+                {/* Sign in link */}
+                <Link to="/login">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="lg"
+                    fullWidth
+                  >
+                    Sign In
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Footer */}

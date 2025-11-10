@@ -7,6 +7,7 @@ import MainLayout from './components/layout/MainLayout';
 // Pages
 import Login from './pages/auth/Login';
 import Signup from './pages/auth/Signup';
+import VerifyEmail from './pages/auth/VerifyEmail';
 import Home from './pages/Home';
 import BarcodeSearch from './pages/products/BarcodeSearch';
 import ProductList from './pages/products/ProductList';
@@ -28,6 +29,7 @@ const App: React.FC = () => {
           {/* Public routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/verify-email/:uid/:token" element={<VerifyEmail />} />
 
           {/* Protected routes with MainLayout */}
           <Route
