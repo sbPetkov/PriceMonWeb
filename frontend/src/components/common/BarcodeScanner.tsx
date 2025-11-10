@@ -20,15 +20,19 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '' }: BarcodeS
 
   // Define stopScanning with useCallback
   const stopScanning = useCallback(async () => {
-    if (!scannerRef.current || !isScanningRef.current) {
+    if (!isScanningRef.current) {
       return;
     }
 
     try {
       console.log('Stopping camera scanner...');
 
-      // Stop all video streams
-      scannerRef.current.reset();
+      // Stop video stream by stopping all tracks
+      if (videoRef.current && videoRef.current.srcObject) {
+        const stream = videoRef.current.srcObject as MediaStream;
+        stream.getTracks().forEach(track => track.stop());
+        videoRef.current.srcObject = null;
+      }
 
       // Reset refs and state
       scannerRef.current = null;
@@ -209,10 +213,15 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '' }: BarcodeS
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (scannerRef.current && isScanningRef.current) {
+      if (isScanningRef.current) {
         console.log('Component unmounting, cleaning up scanner...');
         try {
-          scannerRef.current.reset();
+          // Stop video stream
+          if (videoRef.current && videoRef.current.srcObject) {
+            const stream = videoRef.current.srcObject as MediaStream;
+            stream.getTracks().forEach(track => track.stop());
+            videoRef.current.srcObject = null;
+          }
         } catch (err) {
           console.error('Error during cleanup:', err);
         }
