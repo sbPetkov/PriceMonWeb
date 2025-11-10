@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { getProducts, getCategoryTree } from '../../services/productService';
 import { getErrorMessage } from '../../services/api';
 import type { ProductList as ProductListType, CategoryTree } from '../../types';
+import ProductCard from '../../components/products/ProductCard';
 
 const ProductList = () => {
   const navigate = useNavigate();
@@ -231,55 +232,13 @@ const ProductList = () => {
         ) : (
           <>
             {/* Product Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {products.map((product) => (
-                <div
+                <ProductCard
                   key={product.id}
-                  onClick={() => navigate(`/products/${product.id}`)}
-                  className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer overflow-hidden"
-                >
-                  {/* Product Image */}
-                  {product.image_url ? (
-                    <img
-                      src={product.image_url}
-                      alt={product.name}
-                      className="w-full h-48 object-contain bg-gray-50"
-                    />
-                  ) : (
-                    <div className="w-full h-48 bg-gray-100 flex items-center justify-center">
-                      <svg className="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-                        />
-                      </svg>
-                    </div>
-                  )}
-
-                  {/* Product Info */}
-                  <div className="p-4">
-                    <h3 className="font-semibold text-gray-900 mb-1 truncate">{product.name}</h3>
-                    <p className="text-sm text-gray-600 mb-2 truncate">{product.brand}</p>
-                    <p className="text-xs text-gray-500 mb-3 truncate">{product.category_name}</p>
-
-                    {/* Price */}
-                    {product.best_price ? (
-                      <div className="bg-green-50 rounded-lg p-3">
-                        <p className="text-xs text-green-700 font-medium mb-1">Best Price</p>
-                        <p className="text-lg font-bold text-green-600">
-                          {product.best_price.price_entered} {product.best_price.currency_entered}
-                        </p>
-                        <p className="text-xs text-green-700">{product.best_price.store}</p>
-                      </div>
-                    ) : (
-                      <div className="bg-gray-50 rounded-lg p-3 text-center">
-                        <p className="text-xs text-gray-500">No prices yet</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                  product={product}
+                  // No onFavoriteToggle prop - this hides the favorite button
+                />
               ))}
             </div>
 
