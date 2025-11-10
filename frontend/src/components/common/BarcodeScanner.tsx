@@ -68,7 +68,7 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '' }: BarcodeS
       await codeReader.decodeFromVideoDevice(
         deviceId,
         videoRef.current,
-        (result, err) => {
+        (result) => {
           if (result) {
             onScanSuccess(result.getText());
             stopScanning();
@@ -84,12 +84,9 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '' }: BarcodeS
   };
 
   const stopScanning = () => {
-    if (codeReaderRef.current) {
-      codeReaderRef.current.reset();
-      codeReaderRef.current = null;
-    }
-    setIsScanning(false);
-  };
+  codeReaderRef.current = null;
+  setIsScanning(false);
+ };
 
   const handleCameraChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newCam = e.target.value;
