@@ -13,6 +13,7 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '' }: BarcodeS
   const [error, setError] = useState<string>('');
   const [cameras, setCameras] = useState<any[]>([]);
   const [selectedCamera, setSelectedCamera] = useState<string>('');
+  const [showCameraSelect, setShowCameraSelect] = useState(false);
 
   // Initialize and get available cameras
   useEffect(() => {
@@ -21,12 +22,27 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '' }: BarcodeS
         const devices = await Html5Qrcode.getCameras();
         if (devices && devices.length > 0) {
           setCameras(devices);
-          // Prefer back camera if available
-          const backCamera = devices.find(device =>
-            device.label.toLowerCase().includes('back') ||
-            device.label.toLowerCase().includes('rear')
-          );
-          setSelectedCamera(backCamera?.id || devices[0].id);
+
+          // Smart camera selection - prefer back/rear camera
+          const backCamera = devices.find(device => {
+            const label = device.label.toLowerCase();
+            return label.includes('back') ||
+                   label.includes('rear') ||
+                   label.includes('environment') ||
+                   label.includes('facing back');
+          });
+
+          // Auto-select the best camera
+          const preferredCamera = backCamera?.id || devices[0].id;
+          setSelectedCamera(preferredCamera);
+
+          // Automatically start scanning with back camera
+          if (preferredCamera) {
+            // Small delay to ensure DOM is ready
+            setTimeout(() => {
+              startScanningWithCamera(preferredCamera);
+            }, 100);
+          }
         } else {
           setError('No cameras found on this device');
           if (onScanError) onScanError('No cameras found on this device');
@@ -51,26 +67,21 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '' }: BarcodeS
     getCameras();
   }, [onScanError]);
 
-  const startScanning = async () => {
-    if (!selectedCamera) {
+  const startScanningWithCamera = async (cameraId: string) => {
+    if (!cameraId) {
       setError('No camera selected');
       return;
     }
 
     try {
-      // Configure scanner to support multiple barcode formats
+      // Configure scanner to support only common consumer goods barcode formats
       const config = {
         formatsToSupport: [
-          // Common barcode formats for retail products
-          Html5QrcodeSupportedFormats.EAN_13,      // Most common retail barcode
+          // Most common retail barcode formats (reduced for better performance)
+          Html5QrcodeSupportedFormats.EAN_13,      // Most common retail barcode worldwide
           Html5QrcodeSupportedFormats.EAN_8,       // Shorter EAN format
           Html5QrcodeSupportedFormats.UPC_A,       // North American barcode
           Html5QrcodeSupportedFormats.UPC_E,       // Compressed UPC
-          Html5QrcodeSupportedFormats.CODE_128,    // Versatile barcode format
-          Html5QrcodeSupportedFormats.CODE_39,     // Industrial barcode
-          Html5QrcodeSupportedFormats.CODE_93,     // Compact barcode
-          Html5QrcodeSupportedFormats.ITF,         // Interleaved 2 of 5
-          Html5QrcodeSupportedFormats.QR_CODE,     // QR codes (bonus)
         ],
         verbose: false,
       };
@@ -79,10 +90,23 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '' }: BarcodeS
       scannerRef.current = scanner;
 
       await scanner.start(
-        selectedCamera,
+        cameraId,
         {
-          fps: 10, // Frames per second
-          qrbox: { width: 250, height: 250 }, // Scanning box size
+          fps: 30, // Increased from 10 to 30 for faster scanning
+          qrbox: { width: 280, height: 120 }, // Wider box for barcodes (they're horizontal)
+          aspectRatio: 1.777778, // 16:9 aspect ratio for better camera view
+          // Advanced camera settings
+          advanced: [
+            {
+              zoom: { min: 1.0, max: 3.0, step: 0.1 }
+            },
+            {
+              focusMode: 'continuous' // Continuous autofocus for better barcode detection
+            },
+            {
+              torch: false // Flashlight off by default
+            }
+          ] as any,
         },
         (decodedText) => {
           // Success callback when barcode is scanned
@@ -105,14 +129,20 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '' }: BarcodeS
     }
   };
 
+  const startScanning = async () => {
+    await startScanningWithCamera(selectedCamera);
+  };
+
   const stopScanning = async () => {
     if (scannerRef.current && isScanning) {
       try {
         await scannerRef.current.stop();
-        scannerRef.current.clear();
+        // Don't call clear() to prevent white screen
+        scannerRef.current = null;
         setIsScanning(false);
       } catch (err) {
         console.error('Error stopping scanner:', err);
+        setIsScanning(false);
       }
     }
   };
@@ -126,17 +156,36 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '' }: BarcodeS
     };
   }, [isScanning]);
 
-  const handleCameraChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedCamera(e.target.value);
+  const handleCameraChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newCamera = e.target.value;
+    setSelectedCamera(newCamera);
     if (isScanning) {
-      stopScanning();
+      await stopScanning();
+      // Restart with new camera
+      setTimeout(() => {
+        startScanningWithCamera(newCamera);
+      }, 100);
     }
   };
 
   return (
     <div className={`space-y-4 ${className}`}>
-      {/* Camera Selection */}
+      {/* Camera Selection - Hidden by default, can be shown */}
       {cameras.length > 1 && (
+        <div className="flex items-center justify-between">
+          <button
+            onClick={() => setShowCameraSelect(!showCameraSelect)}
+            className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+            </svg>
+            {showCameraSelect ? 'Hide' : 'Switch'} Camera
+          </button>
+        </div>
+      )}
+
+      {showCameraSelect && cameras.length > 1 && (
         <div>
           <label htmlFor="camera-select" className="block text-sm font-medium text-gray-700 mb-2">
             Select Camera
@@ -146,7 +195,6 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '' }: BarcodeS
             value={selectedCamera}
             onChange={handleCameraChange}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-            disabled={isScanning}
           >
             {cameras.map((camera) => (
               <option key={camera.id} value={camera.id}>
@@ -157,19 +205,50 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '' }: BarcodeS
         </div>
       )}
 
-      {/* Scanner Region */}
+      {/* Scanner Region with Animation */}
       <div className="relative">
         <div
           id="barcode-scanner-region"
           className="w-full rounded-lg overflow-hidden bg-black"
-          style={{ minHeight: isScanning ? '300px' : '0px' }}
+          style={{ minHeight: '300px' }}
         />
 
+        {/* Scanning Animation Overlay */}
         {isScanning && (
-          <div className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
-            <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
-            Scanning...
-          </div>
+          <>
+            {/* Scanning Line Animation */}
+            <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+              <div className="relative w-full h-full max-w-md">
+                {/* Red scanning line */}
+                <div className="absolute w-full h-0.5 bg-red-500 shadow-lg animate-scan"
+                     style={{
+                       boxShadow: '0 0 10px rgba(239, 68, 68, 0.8), 0 0 20px rgba(239, 68, 68, 0.6)',
+                       animation: 'scan 2s linear infinite'
+                     }}
+                />
+
+                {/* Corner brackets for scanning area */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="relative" style={{ width: '280px', height: '120px' }}>
+                    {/* Top-left corner */}
+                    <div className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-red-500"></div>
+                    {/* Top-right corner */}
+                    <div className="absolute top-0 right-0 w-6 h-6 border-t-4 border-r-4 border-red-500"></div>
+                    {/* Bottom-left corner */}
+                    <div className="absolute bottom-0 left-0 w-6 h-6 border-b-4 border-l-4 border-red-500"></div>
+                    {/* Bottom-right corner */}
+                    <div className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-red-500"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Status Badge */}
+            <div className="absolute top-2 right-2 bg-red-500 text-white text-xs px-3 py-1.5 rounded-full flex items-center gap-2 shadow-lg">
+              <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
+              <span className="font-semibold">Scanning...</span>
+            </div>
+          </>
         )}
       </div>
 
@@ -225,14 +304,35 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '' }: BarcodeS
       {/* Instructions */}
       {isScanning && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-700">
-          <p className="font-medium mb-1">How to scan:</p>
+          <p className="font-medium mb-1">📱 Scanning Tips:</p>
           <ul className="list-disc list-inside space-y-1">
-            <li>Hold your device steady</li>
-            <li>Position the barcode within the red box</li>
+            <li>Hold your device steady and parallel to the barcode</li>
+            <li>Position the barcode within the red corners</li>
             <li>Ensure good lighting for best results</li>
+            <li>Keep the barcode 10-15cm from the camera</li>
           </ul>
         </div>
       )}
+
+      {/* CSS Animation for scanning line */}
+      <style>{`
+        @keyframes scan {
+          0% {
+            top: 20%;
+            opacity: 0;
+          }
+          10% {
+            opacity: 1;
+          }
+          90% {
+            opacity: 1;
+          }
+          100% {
+            top: 80%;
+            opacity: 0;
+          }
+        }
+      `}</style>
     </div>
   );
 };
