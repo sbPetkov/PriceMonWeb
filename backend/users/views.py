@@ -14,7 +14,12 @@ from .serializers import (
     UserUpdateSerializer,
     PasswordChangeSerializer
 )
-from .utils import send_verification_email, verify_token
+from .utils import (
+    send_verification_email,
+    verify_token,
+    send_password_reset_email,
+    verify_password_reset_token
+)
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -248,3 +253,106 @@ def resend_verification_email(request):
         return Response({
             'message': 'If an account with this email exists, a verification email will be sent.'
         }, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def request_password_reset(request):
+    """
+    Request password reset email.
+    POST /api/auth/forgot-password/
+    """
+    email = request.data.get('email')
+
+    if not email:
+        return Response({
+            'error': 'Email is required'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        user = User.objects.get(email=email)
+
+        # Send password reset email
+        email_sent = send_password_reset_email(user, request)
+
+        if not email_sent:
+            return Response({
+                'error': 'Failed to send password reset email. Please try again later.'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response({
+            'message': 'Password reset email sent! Please check your inbox.'
+        }, status=status.HTTP_200_OK)
+
+    except User.DoesNotExist:
+        # Don't reveal if email exists or not for security
+        # Still return success to prevent email enumeration
+        return Response({
+            'message': 'If an account with this email exists, a password reset email will be sent.'
+        }, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def reset_password(request, uid, token):
+    """
+    Reset password with token.
+    POST /api/auth/reset-password/<uid>/<token>/
+    """
+    new_password = request.data.get('new_password')
+    new_password_confirm = request.data.get('new_password_confirm')
+
+    # Validate input
+    if not new_password or not new_password_confirm:
+        return Response({
+            'error': 'Both password fields are required'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    if new_password != new_password_confirm:
+        return Response({
+            'error': 'Passwords do not match'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    if len(new_password) < 8:
+        return Response({
+            'error': 'Password must be at least 8 characters long'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    # Verify the token and get the user
+    user = verify_password_reset_token(uid, token)
+
+    if not user:
+        return Response({
+            'error': 'Invalid or expired password reset link. Please request a new one.'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    # Set new password
+    user.set_password(new_password)
+    user.save()
+
+    return Response({
+        'message': 'Password reset successfully! You can now log in with your new password.',
+        'email': user.email
+    }, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+def verify_password_reset_link(request, uid, token):
+    """
+    Verify if password reset link is valid (before showing reset form).
+    GET /api/auth/verify-reset-link/<uid>/<token>/
+    """
+    user = verify_password_reset_token(uid, token)
+
+    if not user:
+        return Response({
+            'error': 'Invalid or expired password reset link',
+            'valid': False
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response({
+        'message': 'Link is valid',
+        'valid': True,
+        'email': user.email
+    }, status=status.HTTP_200_OK)

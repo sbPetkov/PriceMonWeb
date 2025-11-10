@@ -10,6 +10,9 @@ from .views import (
     check_email_exists,
     verify_email,
     resend_verification_email,
+    request_password_reset,
+    reset_password,
+    verify_password_reset_link,
 )
 
 app_name = 'users'
@@ -24,6 +27,11 @@ urlpatterns = [
     # Email verification
     path('verify-email/<str:uid>/<str:token>/', verify_email, name='verify_email'),
     path('resend-verification/', resend_verification_email, name='resend_verification'),
+
+    # Password reset
+    path('forgot-password/', request_password_reset, name='forgot_password'),
+    path('reset-password/<str:uid>/<str:token>/', reset_password, name='reset_password'),
+    path('verify-reset-link/<str:uid>/<str:token>/', verify_password_reset_link, name='verify_reset_link'),
 
     # User profile
     path('me/', UserProfileView.as_view(), name='profile'),

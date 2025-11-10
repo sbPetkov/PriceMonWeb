@@ -8,6 +8,8 @@ import MainLayout from './components/layout/MainLayout';
 import Login from './pages/auth/Login';
 import Signup from './pages/auth/Signup';
 import VerifyEmail from './pages/auth/VerifyEmail';
+import ForgotPassword from './pages/auth/ForgotPassword';
+import ResetPassword from './pages/auth/ResetPassword';
 import Home from './pages/Home';
 import BarcodeSearch from './pages/products/BarcodeSearch';
 import ProductList from './pages/products/ProductList';
@@ -30,6 +32,8 @@ const App: React.FC = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/verify-email/:uid/:token" element={<VerifyEmail />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
 
           {/* Protected routes with MainLayout */}
           <Route
