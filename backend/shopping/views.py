@@ -136,7 +136,7 @@ class ShoppingListViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def add_item(self, request, pk=None):
-        """Add an item to the shopping list"""
+        """Add an item to the shopping list (or increment quantity if it already exists)"""
         shopping_list = self.get_object()
 
         # Check if user has permission (owner or editor)
@@ -151,7 +151,28 @@ class ShoppingListViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        # Create item
+        # Check if this is a product item (not custom)
+        product_id = request.data.get('product_id')
+        quantity_to_add = int(request.data.get('quantity', 1))
+
+        if product_id:
+            # Check if this product already exists in the shopping list
+            existing_item = ShoppingListItem.objects.filter(
+                shopping_list=shopping_list,
+                product_id=product_id
+            ).first()
+
+            if existing_item:
+                # Increment the quantity of the existing item
+                existing_item.quantity += quantity_to_add
+                existing_item.save()
+
+                return Response(
+                    ShoppingListItemSerializer(existing_item).data,
+                    status=status.HTTP_200_OK
+                )
+
+        # Create new item (either custom item or product doesn't exist yet)
         data = request.data.copy()
         data['shopping_list'] = shopping_list.id
 

@@ -177,6 +177,11 @@ AUTH_USER_MODEL = 'users.User'
 CORS_ALLOW_ALL_ORIGINS = os.getenv('CORS_ALLOW_ALL_ORIGINS', 'True') == 'True'
 CORS_ALLOW_CREDENTIALS = True
 
+# CSRF Trusted Origins
+csrf_origins = os.getenv('CSRF_TRUSTED_ORIGINS', '')
+if csrf_origins:
+    CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in csrf_origins.split(',')]
+
 # Production: Use specific allowed origins from environment
 if not CORS_ALLOW_ALL_ORIGINS:
     cors_origins = os.getenv('CORS_ALLOWED_ORIGINS', 'https://price-mon.com')

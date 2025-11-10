@@ -53,7 +53,7 @@ class Store(models.Model):
     Physical stores/chains in Bulgaria where products can be purchased.
     Examples: Kaufland, Lidl, Billa, etc.
     """
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100, unique=False)
     chain = models.CharField(
         max_length=100,
         help_text="Store chain name (e.g., Kaufland, Lidl)",

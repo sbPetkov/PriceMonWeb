@@ -182,12 +182,12 @@ nano .env.prod
 ```env
 SECRET_KEY=<run: python3 -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'>
 DEBUG=False
-ALLOWED_HOSTS=price-mon.com,www.price-mon.com,YOUR_VPS_IP
+ALLOWED_HOSTS=price-mon.com,www.price-mon.com,192.168.1.15
 
 DATABASE_ENGINE=django.db.backends.postgresql
 POSTGRES_DB=pricemon
 POSTGRES_USER=pricemon_user
-POSTGRES_PASSWORD=<strong-random-password>
+POSTGRES_PASSWORD=.......
 POSTGRES_HOST=postgres
 POSTGRES_PORT=5432
 
@@ -239,7 +239,7 @@ git push origin main
 ssh root@YOUR_VPS_IP
 
 # Pull latest code
-cd /var/www/pricemon/WebVersion
+cd /var/www/pricemon/
 git pull origin main
 
 # If you changed backend code (Python/Django):
