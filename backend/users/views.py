@@ -418,8 +418,7 @@ Reply directly to this email to respond to the user.
             message=email_body,
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=['svilen.petkov@price-mon.com'],
-            fail_silently=False,
-            reply_to=[user.email],  # Allow direct reply to user
+            fail_silently=False
         )
 
         return Response({

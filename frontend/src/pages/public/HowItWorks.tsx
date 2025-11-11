@@ -7,7 +7,7 @@ const HowItWorks = () => {
       title: 'Sign Up & Verify Your Email',
       description:
         'Create your free PriceMon account in seconds. After signing up, verify your email address to unlock all features. Email verification helps us maintain a trusted community and ensures you receive important notifications about price changes and updates.',
-      image: 'step1-signup.jpeg',
+      image: 'step1-signup.jpg',
       color: 'from-blue-500 to-blue-600',
     },
     {
@@ -15,7 +15,7 @@ const HowItWorks = () => {
       title: 'Search for Products',
       description:
         'Use the powerful search feature to find any product you\'re interested in. Our database contains thousands of everyday items from groceries to household goods. Filter by category, store, or location to narrow down results. Can\'t find a product? You can add it yourself and help the community!',
-      image: 'step2-search.jpeg',
+      image: 'step2-search.jpg',
       color: 'from-green-500 to-green-600',
     },
     {
@@ -23,7 +23,7 @@ const HowItWorks = () => {
       title: 'Scan Products',
       description:
         'Submit price information in multiple ways for maximum convenience. Manually enter product prices, locations, and store details, or use your phone\'s camera to scan barcodes for instant product recognition. Our smart system validates submissions to ensure data accuracy and quality.',
-      image: 'step3-scan.jpeg',
+      image: 'step3-scan.jpg',
       color: 'from-purple-500 to-purple-600',
     },
     {
@@ -31,7 +31,7 @@ const HowItWorks = () => {
       title: 'View Product Details',
       description:
         'Explore comprehensive pricing information for each product. See the current average price across all stores, identify the lowest available price, and view which stores carry the item. The interactive price history graph shows trends over time, helping you spot the best time to buy and understand seasonal variations.',
-      image: 'step4-details.jpeg',
+      image: 'step4-details.jpg',
       color: 'from-orange-500 to-orange-600',
     },
     {
@@ -39,7 +39,7 @@ const HowItWorks = () => {
       title: 'Create Shopping Lists',
       description:
         'Organize your purchases with smart shopping lists. Add items you need and share lists with family members or roommates so everyone can contribute. Our comparison feature analyzes your entire list and shows you which stores offer the best overall value, helping you save time and money on every shopping trip.',
-      image: 'step5-list.jpeg',
+      image: 'step5-list.jpg',
       color: 'from-pink-500 to-pink-600',
     },
   ];
@@ -73,29 +73,17 @@ const HowItWorks = () => {
                     index % 2 === 0 ? 'md:order-1' : 'md:order-2'
                   } relative`}
                 >
-                  <div className="aspect-[9/16] md:aspect-auto md:h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center relative">
-                    {/* Placeholder Image */}
-                    <div className="text-center p-8">
-                      <div
-                        className={`w-16 h-16 mx-auto mb-4 bg-gradient-to-br ${step.color} rounded-full flex items-center justify-center`}
-                      >
-                        <span className="text-2xl font-bold text-white">
-                          {step.number}
-                        </span>
-                      </div>
-                      <p className="text-gray-500 font-medium">
-                        Screenshot Coming Soon
-                      </p>
-                      <p className="text-sm text-gray-400 mt-2">
-                        {step.image}
-                      </p>
-                    </div>
-                    {/* Image overlay for future */}
-                    {/* <img
+                  <div className="relative w-full h-full min-h-[400px] bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center overflow-hidden rounded-l-2xl">
+                    <img
                       src={`/images/tutorial/${step.image}`}
                       alt={step.title}
-                      className="w-full h-full object-cover"
-                    /> */}
+                      className="w-auto h-auto max-w-full max-h-full object-contain p-4"
+                    />
+                    <div className="absolute top-4 right-4 w-12 h-12 bg-gradient-to-br from-primary to-primary-600 rounded-lg flex items-center justify-center shadow-lg">
+                      <span className="text-xl font-bold text-white">
+                        {step.number}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
