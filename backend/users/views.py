@@ -6,6 +6,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import authenticate
+from django.core.mail import send_mail
+from django.conf import settings
 
 from .models import User
 from .serializers import (
@@ -356,3 +358,78 @@ def verify_password_reset_link(request, uid, token):
         'valid': True,
         'email': user.email
     }, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def contact_support(request):
+    """
+    Send a contact message to support.
+    POST /api/auth/contact/
+    """
+    subject = request.data.get('subject', '').strip()
+    message = request.data.get('message', '').strip()
+
+    # Validate input
+    if not subject or not message:
+        return Response({
+            'error': 'Both subject and message are required'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    if len(message) < 10:
+        return Response({
+            'error': 'Message must be at least 10 characters long'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    if len(subject) > 200:
+        return Response({
+            'error': 'Subject must be less than 200 characters'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    if len(message) > 2000:
+        return Response({
+            'error': 'Message must be less than 2000 characters'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    user = request.user
+
+    # Compose email
+    email_subject = f"[PriceMon Contact] {subject}"
+    email_body = f"""
+New contact form submission from PriceMon user:
+
+From: {user.first_name} ({user.email})
+User ID: {user.id}
+Trust Level: {user.trust_level}
+Subject: {subject}
+
+Message:
+{message}
+
+---
+This message was sent via the PriceMon contact form.
+Reply directly to this email to respond to the user.
+"""
+
+    try:
+        # Send email
+        send_mail(
+            subject=email_subject,
+            message=email_body,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=['svilen.petkov@price-mon.com'],
+            fail_silently=False,
+            reply_to=[user.email],  # Allow direct reply to user
+        )
+
+        return Response({
+            'message': 'Your message has been sent successfully! We\'ll get back to you soon.'
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        # Log the error in production
+        print(f"Failed to send contact email: {str(e)}")
+
+        return Response({
+            'error': 'Failed to send message. Please try again later or contact us directly at svilen.petkov@price-mon.com'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
