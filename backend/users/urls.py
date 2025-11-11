@@ -13,6 +13,7 @@ from .views import (
     request_password_reset,
     reset_password,
     verify_password_reset_link,
+    contact_support,
 )
 
 app_name = 'users'
@@ -39,4 +40,7 @@ urlpatterns = [
 
     # Utilities
     path('check-email/', check_email_exists, name='check_email'),
+
+    # Contact
+    path('contact/', contact_support, name='contact_support'),
 ]
