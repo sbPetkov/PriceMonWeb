@@ -1,5 +1,6 @@
 import { useState, FormEvent } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import api from '../services/api';
 
 interface ContactModalProps {
   isOpen: boolean;
@@ -21,22 +22,10 @@ const ContactModal = ({ isOpen, onClose }: ContactModalProps) => {
     setErrorMessage('');
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/users/contact/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-        },
-        body: JSON.stringify({
-          subject,
-          message,
-        }),
+      const response = await api.post('/auth/contact/', {
+        subject,
+        message,
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to send message');
-      }
 
       setSubmitStatus('success');
       setSubject('');
@@ -47,9 +36,10 @@ const ContactModal = ({ isOpen, onClose }: ContactModalProps) => {
         onClose();
         setSubmitStatus('idle');
       }, 2000);
-    } catch (error) {
+    } catch (error: any) {
       setSubmitStatus('error');
-      setErrorMessage(error instanceof Error ? error.message : 'Failed to send message. Please try again.');
+      const errorMsg = error.response?.data?.error || error.message || 'Failed to send message. Please try again.';
+      setErrorMessage(errorMsg);
     } finally {
       setIsSubmitting(false);
     }
