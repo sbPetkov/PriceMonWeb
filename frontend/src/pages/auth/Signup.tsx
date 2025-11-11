@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { getFieldErrors } from '../../services/api';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
+import AuthFooter from '../../components/AuthFooter';
 import type { RegisterRequest } from '../../types';
 
 const Signup: React.FC = () => {
@@ -343,6 +344,9 @@ const Signup: React.FC = () => {
               Privacy Policy
             </a>
           </p>
+
+          {/* Public Pages Footer */}
+          <AuthFooter />
         </div>
       </div>
     </div>

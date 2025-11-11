@@ -10,6 +10,9 @@ import Signup from './pages/auth/Signup';
 import VerifyEmail from './pages/auth/VerifyEmail';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import ResetPassword from './pages/auth/ResetPassword';
+import About from './pages/public/About';
+import HowItWorks from './pages/public/HowItWorks';
+import ContactUs from './pages/public/ContactUs';
 import Home from './pages/Home';
 import BarcodeSearch from './pages/products/BarcodeSearch';
 import ProductList from './pages/products/ProductList';
@@ -31,9 +34,13 @@ const App: React.FC = () => {
           {/* Public routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/register" element={<Signup />} />
           <Route path="/verify-email/:uid/:token" element={<VerifyEmail />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/how-it-works" element={<HowItWorks />} />
+          <Route path="/contact" element={<ContactUs />} />
 
           {/* Protected routes with MainLayout */}
           <Route
