@@ -22,7 +22,7 @@ const ContactModal = ({ isOpen, onClose }: ContactModalProps) => {
     setErrorMessage('');
 
     try {
-      const response = await api.post('/auth/contact/', {
+      await api.post('/auth/contact/', {
         subject,
         message,
       });
