@@ -14,6 +14,7 @@ from .views import (
     reset_password,
     verify_password_reset_link,
     contact_support,
+    contact_public,
 )
 
 app_name = 'users'
@@ -43,4 +44,5 @@ urlpatterns = [
 
     # Contact
     path('contact/', contact_support, name='contact_support'),
+    path('contact-public/', contact_public, name='contact_public'),
 ]

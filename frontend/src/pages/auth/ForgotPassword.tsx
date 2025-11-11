@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import api from '../../services/api';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
+import AuthFooter from '../../components/AuthFooter';
 
 const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -166,6 +167,9 @@ const ForgotPassword: React.FC = () => {
             </div>
           </>
         )}
+
+        {/* Public Pages Footer */}
+        <AuthFooter />
       </div>
     </div>
   );

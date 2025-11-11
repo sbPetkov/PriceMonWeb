@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { getFieldErrors } from '../../services/api';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
+import AuthFooter from '../../components/AuthFooter';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -247,6 +248,9 @@ const Login: React.FC = () => {
               Privacy Policy
             </a>
           </p>
+
+          {/* Public Pages Footer */}
+          <AuthFooter />
         </div>
       </div>
     </div>

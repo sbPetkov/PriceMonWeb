@@ -433,3 +433,81 @@ Reply directly to this email to respond to the user.
         return Response({
             'error': 'Failed to send message. Please try again later or contact us directly at svilen.petkov@price-mon.com'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def contact_public(request):
+    """
+    Send a contact message from public (non-authenticated) users.
+    POST /api/auth/contact-public/
+    """
+    name = request.data.get('name', '').strip()
+    email = request.data.get('email', '').strip()
+    subject = request.data.get('subject', '').strip()
+    message = request.data.get('message', '').strip()
+
+    # Validate input
+    if not name or not email or not subject or not message:
+        return Response({
+            'error': 'All fields are required'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    if len(message) < 10:
+        return Response({
+            'error': 'Message must be at least 10 characters long'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    if len(subject) > 200:
+        return Response({
+            'error': 'Subject must be less than 200 characters'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    if len(message) > 2000:
+        return Response({
+            'error': 'Message must be less than 2000 characters'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    if len(name) > 100:
+        return Response({
+            'error': 'Name must be less than 100 characters'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    # Compose email
+    email_subject = f"[PriceMon Contact - Public] {subject}"
+    email_body = f"""
+New contact form submission from public visitor:
+
+From: {name} ({email})
+Subject: {subject}
+
+Message:
+{message}
+
+---
+This message was sent via the public PriceMon contact form.
+Reply directly to this email to respond to the visitor.
+"""
+
+    try:
+        # Send email
+        send_mail(
+            subject=email_subject,
+            message=email_body,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=['svilen.petkov@price-mon.com'],
+            fail_silently=False,
+            reply_to=[email],  # Allow direct reply to visitor
+        )
+
+        return Response({
+            'message': 'Your message has been sent successfully! We\'ll get back to you soon.'
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        # Log the error in production
+        print(f"Failed to send contact email: {str(e)}")
+
+        return Response({
+            'error': 'Failed to send message. Please try again later or contact us directly at svilen.petkov@price-mon.com'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
