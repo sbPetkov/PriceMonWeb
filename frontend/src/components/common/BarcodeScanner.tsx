@@ -30,11 +30,6 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '', isActive =
     try {
       console.log('Stopping camera scanner...');
 
-      // Stop the ZXing scanner first
-      if (scannerRef.current) {
-        scannerRef.current.reset();
-      }
-
       // Stop video stream by stopping all tracks
       if (videoRef.current && videoRef.current.srcObject) {
         const stream = videoRef.current.srcObject as MediaStream;
@@ -55,13 +50,6 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '', isActive =
     } catch (err) {
       console.error('Error stopping scanner:', err);
       // Force reset even on error
-      if (scannerRef.current) {
-        try {
-          scannerRef.current.reset();
-        } catch (resetErr) {
-          console.error('Error resetting scanner:', resetErr);
-        }
-      }
       scannerRef.current = null;
       isScanningRef.current = false;
       hasScannedRef.current = false;
@@ -316,12 +304,6 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '', isActive =
 
       // Immediately stop camera without waiting for async stopScanning
       try {
-        // Stop the ZXing scanner
-        if (scannerRef.current) {
-          scannerRef.current.reset();
-          scannerRef.current = null;
-        }
-
         // Stop video stream
         if (videoRef.current && videoRef.current.srcObject) {
           const stream = videoRef.current.srcObject as MediaStream;
@@ -333,6 +315,7 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '', isActive =
         }
 
         // Reset refs and state
+        scannerRef.current = null;
         isScanningRef.current = false;
         hasScannedRef.current = false;
         setIsScanning(false);
@@ -365,12 +348,6 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '', isActive =
 
       console.log('Component unmounting, cleaning up scanner...');
       try {
-        // Stop the ZXing scanner first (important!)
-        if (scannerRef.current) {
-          scannerRef.current.reset();
-          scannerRef.current = null;
-        }
-
         // Stop video stream tracks
         if (videoRef.current && videoRef.current.srcObject) {
           const stream = videoRef.current.srcObject as MediaStream;
@@ -381,7 +358,8 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '', isActive =
           videoRef.current.srcObject = null;
         }
 
-        // Reset state
+        // Reset scanner ref and state
+        scannerRef.current = null;
         isScanningRef.current = false;
         hasScannedRef.current = false;
       } catch (err) {
@@ -402,10 +380,10 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '', isActive =
     if (isScanningRef.current) {
       await stopScanning();
       // Restart with new camera after a short delay
-      cameraSwitchTimeoutRef.current = setTimeout(() => {
+      cameraSwitchTimeoutRef.current = window.setTimeout(() => {
         startScanningWithCamera(cameraId);
         cameraSwitchTimeoutRef.current = null;
-      }, 100);
+      }, 100) as unknown as number;
     }
   };
 
@@ -418,7 +396,7 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '', isActive =
             Select Camera
           </label>
           <div className="flex gap-2 flex-wrap">
-            {cameras.map((camera, index) => {
+            {cameras.map((camera) => {
               const isSelected = selectedCamera === camera.deviceId;
               const baseLabel = getCameraLabel(camera);
 
