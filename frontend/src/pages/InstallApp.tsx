@@ -7,13 +7,6 @@ const InstallApp = () => {
   const [isInstallable, setIsInstallable] = useState(false);
   const [showInstalled, setShowInstalled] = useState(false);
 
-  // Detect platform
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-  const isAndroid = /Android/.test(navigator.userAgent);
-  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-  const isChrome = /Chrome/.test(navigator.userAgent) && !isIOS;
-  const isFirefox = /Firefox/.test(navigator.userAgent);
-
   useEffect(() => {
     // Listen for install prompt (Android/Chrome)
     const handler = (e: any) => {
