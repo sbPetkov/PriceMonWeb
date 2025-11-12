@@ -13,11 +13,11 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '' }: BarcodeS
   const videoRef = useRef<HTMLVideoElement>(null);
   const isScanningRef = useRef(false);
   const hasScannedRef = useRef(false); // Prevent multiple scan callbacks
+  const cameraSwitchTimeoutRef = useRef<NodeJS.Timeout | null>(null); // Track timeout for cleanup
   const [isScanning, setIsScanning] = useState(false);
   const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
   const [selectedCamera, setSelectedCamera] = useState<string>('');
   const [error, setError] = useState('');
-  const [showCameraSelect, setShowCameraSelect] = useState(false);
   const [permissionsGranted, setPermissionsGranted] = useState(false);
 
   // Define stopScanning with useCallback
@@ -125,6 +125,35 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '' }: BarcodeS
     }
   }, [onScanSuccess, onScanError, stopScanning]);
 
+  // Helper function to get friendly camera name
+  const getCameraLabel = (device: MediaDeviceInfo): string => {
+    const label = device.label.toLowerCase();
+
+    // iPhone/iOS detection patterns
+    if (label.includes('ultra') || label.includes('0.5')) {
+      return 'Ultra Wide (0.5×)';
+    }
+    if (label.includes('telephoto') || label.includes('2x') || label.includes('3x')) {
+      return 'Telephoto (2-3×)';
+    }
+
+    // Android detection patterns
+    if (label.includes('wide 0') || label.includes('ultra')) {
+      return 'Ultra Wide';
+    }
+    if (label.includes('wide 2') || label.includes('telephoto')) {
+      return 'Telephoto';
+    }
+
+    // Main/Wide camera (most common)
+    if (label.includes('main') || label.includes('wide') || label.includes('back') || label.includes('rear')) {
+      return 'Wide (1×)';
+    }
+
+    // Fallback
+    return device.label || 'Camera';
+  };
+
   // Request camera permissions and load cameras
   const requestCameraPermissions = useCallback(async () => {
     try {
@@ -144,37 +173,44 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '' }: BarcodeS
 
       // Now enumerate devices (labels will be available after getUserMedia)
       const devices = await navigator.mediaDevices.enumerateDevices();
-      const videoDevices = devices.filter(d => d.kind === 'videoinput');
+      const allVideoDevices = devices.filter(d => d.kind === 'videoinput');
+
+      // Filter out front-facing cameras (only show back cameras for barcode scanning)
+      const backCameras = allVideoDevices.filter(device => {
+        const label = device.label.toLowerCase();
+        // Exclude front-facing cameras
+        return !label.includes('front') && !label.includes('user') && !label.includes('face');
+      });
+
+      const videoDevices = backCameras.length > 0 ? backCameras : allVideoDevices;
 
       if (videoDevices.length > 0) {
         setCameras(videoDevices);
 
-        // Enhanced camera selection - prefer main back camera, avoid ultra-wide
-        // Priority: main > back > rear > environment > first camera
+        // Smart camera selection - prefer wide (1x) as default
+        // Priority: wide/main > ultra-wide > telephoto > first available
         let preferredCamera = videoDevices[0]; // Default to first
 
-        // Try to find the best camera
+        // Try to find the best default camera
         for (const device of videoDevices) {
           const label = device.label.toLowerCase();
 
-          // Highest priority: main camera (avoids ultra-wide on Android)
-          if (label.includes('main') || label.includes('wide 1') || label.includes('camera 0')) {
+          // Highest priority: main/wide camera (1x - best balance for most use cases)
+          if ((label.includes('main') || label.includes('wide 1') || label.includes('camera 0') ||
+               (label.includes('back') && !label.includes('ultra') && !label.includes('telephoto'))) &&
+              !label.includes('ultra') && !label.includes('telephoto') && !label.includes('2x') && !label.includes('3x')) {
             preferredCamera = device;
             break;
           }
+        }
 
-          // Second priority: back camera (but not ultra-wide)
-          if ((label.includes('back') || label.includes('rear')) &&
-              !label.includes('ultra') &&
-              !label.includes('wide 2')) {
-            preferredCamera = device;
-            // Don't break, keep looking for "main"
-          }
-
-          // Third priority: environment facing
-          if (label.includes('environment')) {
-            if (!label.includes('ultra') && !label.includes('wide 2')) {
+        // If no main camera found, try ultra-wide (good for close-up scanning)
+        if (preferredCamera === videoDevices[0]) {
+          for (const device of videoDevices) {
+            const label = device.label.toLowerCase();
+            if (label.includes('ultra') || label.includes('0.5') || label.includes('wide 0')) {
               preferredCamera = device;
+              break;
             }
           }
         }
@@ -236,6 +272,12 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '' }: BarcodeS
   // Cleanup on unmount
   useEffect(() => {
     return () => {
+      // Clear any pending camera switch timeout
+      if (cameraSwitchTimeoutRef.current) {
+        clearTimeout(cameraSwitchTimeoutRef.current);
+        cameraSwitchTimeoutRef.current = null;
+      }
+
       if (isScanningRef.current) {
         console.log('Component unmounting, cleaning up scanner...');
         try {
@@ -252,52 +294,80 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '' }: BarcodeS
     };
   }, []);
 
-  const handleCameraChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newCamera = e.target.value;
-    setSelectedCamera(newCamera);
+  const handleCameraChange = async (cameraId: string) => {
+    // Clear any pending camera switch timeout
+    if (cameraSwitchTimeoutRef.current) {
+      clearTimeout(cameraSwitchTimeoutRef.current);
+      cameraSwitchTimeoutRef.current = null;
+    }
+
+    setSelectedCamera(cameraId);
+
     if (isScanningRef.current) {
       await stopScanning();
-      // Restart with new camera
-      setTimeout(() => {
-        startScanningWithCamera(newCamera);
+      // Restart with new camera after a short delay
+      cameraSwitchTimeoutRef.current = setTimeout(() => {
+        startScanningWithCamera(cameraId);
+        cameraSwitchTimeoutRef.current = null;
       }, 100);
     }
   };
 
   return (
     <div className={`space-y-4 ${className}`}>
-      {/* Camera Selection - Hidden by default, can be shown */}
+      {/* Camera Selection Buttons - Only show if multiple back cameras available */}
       {cameras.length > 1 && (
-        <div className="flex items-center justify-between">
-          <button
-            onClick={() => setShowCameraSelect(!showCameraSelect)}
-            className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-2"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-            </svg>
-            {showCameraSelect ? 'Hide' : 'Switch'} Camera
-          </button>
-        </div>
-      )}
-
-      {showCameraSelect && cameras.length > 1 && (
         <div>
-          <label htmlFor="camera-select" className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
             Select Camera
           </label>
-          <select
-            id="camera-select"
-            value={selectedCamera}
-            onChange={handleCameraChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-          >
-            {cameras.map((camera) => (
-              <option key={camera.deviceId} value={camera.deviceId}>
-                {camera.label || `Camera ${camera.deviceId}`}
-              </option>
-            ))}
-          </select>
+          <div className="flex gap-2 flex-wrap">
+            {cameras.map((camera) => {
+              const isSelected = selectedCamera === camera.deviceId;
+              const label = getCameraLabel(camera);
+
+              return (
+                <button
+                  key={camera.deviceId}
+                  onClick={() => handleCameraChange(camera.deviceId)}
+                  className={`
+                    px-4 py-2.5 rounded-lg font-medium text-sm transition-all
+                    flex items-center gap-2 border-2
+                    ${isSelected
+                      ? 'bg-primary text-white border-primary shadow-md'
+                      : 'bg-white text-gray-700 border-gray-300 hover:border-primary hover:text-primary'
+                    }
+                  `}
+                >
+                  {/* Camera icon */}
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                  </svg>
+                  <span>{label}</span>
+                  {isSelected && (
+                    <svg className="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
 
