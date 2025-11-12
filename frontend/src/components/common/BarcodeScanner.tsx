@@ -13,7 +13,7 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '' }: BarcodeS
   const videoRef = useRef<HTMLVideoElement>(null);
   const isScanningRef = useRef(false);
   const hasScannedRef = useRef(false); // Prevent multiple scan callbacks
-  const cameraSwitchTimeoutRef = useRef<NodeJS.Timeout | null>(null); // Track timeout for cleanup
+  const cameraSwitchTimeoutRef = useRef<number | null>(null); // Track timeout for cleanup
   const [isScanning, setIsScanning] = useState(false);
   const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
   const [selectedCamera, setSelectedCamera] = useState<string>('');
