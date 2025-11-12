@@ -6,9 +6,10 @@ interface BarcodeScannerProps {
   onScanSuccess: (barcode: string) => void;
   onScanError?: (error: string) => void;
   className?: string;
+  isActive?: boolean; // Controls whether scanner should be active (stop camera when navigating away)
 }
 
-const BarcodeScanner = ({ onScanSuccess, onScanError, className = '' }: BarcodeScannerProps) => {
+const BarcodeScanner = ({ onScanSuccess, onScanError, className = '', isActive = true }: BarcodeScannerProps) => {
   const scannerRef = useRef<BrowserMultiFormatReader | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const isScanningRef = useRef(false);
@@ -184,15 +185,27 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '' }: BarcodeS
 
       const videoDevices = backCameras.length > 0 ? backCameras : allVideoDevices;
 
-      if (videoDevices.length > 0) {
-        setCameras(videoDevices);
+      // Deduplicate cameras with same friendly labels (iOS often exposes same camera multiple times)
+      const uniqueCameras: MediaDeviceInfo[] = [];
+      const seenLabels = new Set<string>();
+
+      for (const device of videoDevices) {
+        const friendlyLabel = getCameraLabel(device);
+        if (!seenLabels.has(friendlyLabel)) {
+          seenLabels.add(friendlyLabel);
+          uniqueCameras.push(device);
+        }
+      }
+
+      if (uniqueCameras.length > 0) {
+        setCameras(uniqueCameras);
 
         // Smart camera selection - prefer wide (1x) as default
         // Priority: wide/main > ultra-wide > telephoto > first available
-        let preferredCamera = videoDevices[0]; // Default to first
+        let preferredCamera = uniqueCameras[0]; // Default to first
 
         // Try to find the best default camera
-        for (const device of videoDevices) {
+        for (const device of uniqueCameras) {
           const label = device.label.toLowerCase();
 
           // Highest priority: main/wide camera (1x - best balance for most use cases)
@@ -205,8 +218,8 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '' }: BarcodeS
         }
 
         // If no main camera found, try ultra-wide (good for close-up scanning)
-        if (preferredCamera === videoDevices[0]) {
-          for (const device of videoDevices) {
+        if (preferredCamera === uniqueCameras[0]) {
+          for (const device of uniqueCameras) {
             const label = device.label.toLowerCase();
             if (label.includes('ultra') || label.includes('0.5') || label.includes('wide 0')) {
               preferredCamera = device;
@@ -258,6 +271,14 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '' }: BarcodeS
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [stopScanning]);
+
+  // Stop camera when component becomes inactive (e.g., user navigates to another tab in SPA)
+  useEffect(() => {
+    if (!isActive && isScanningRef.current) {
+      console.log('Component inactive, stopping camera...');
+      stopScanning();
+    }
+  }, [isActive, stopScanning]);
 
   const startScanning = useCallback(async () => {
     if (!permissionsGranted || !selectedCamera) {

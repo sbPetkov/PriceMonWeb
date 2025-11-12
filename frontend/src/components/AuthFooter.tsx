@@ -20,6 +20,12 @@ const AuthFooter = () => {
               How It Works
             </Link>
             <Link
+              to="/install"
+              className="text-gray-600 hover:text-primary font-medium transition-colors"
+            >
+              Install App
+            </Link>
+            <Link
               to="/contact"
               className="text-gray-600 hover:text-primary font-medium transition-colors"
             >

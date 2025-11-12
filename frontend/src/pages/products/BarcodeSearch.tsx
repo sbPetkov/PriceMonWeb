@@ -1,15 +1,35 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { lookupBarcode } from '../../services/productService';
 import { getErrorMessage } from '../../services/api';
 import BarcodeScanner from '../../components/common/BarcodeScanner';
 
 const BarcodeSearch = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [barcode, setBarcode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [scanMode, setScanMode] = useState<'manual' | 'camera'>('manual');
+  const [isPageActive, setIsPageActive] = useState(true);
+
+  // Detect when user navigates away from this page
+  useEffect(() => {
+    // Page is active when we're on the /scan route
+    const isActive = location.pathname === '/scan';
+    setIsPageActive(isActive);
+
+    // Also handle browser tab visibility
+    const handleVisibilityChange = () => {
+      setIsPageActive(!document.hidden && location.pathname === '/scan');
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [location.pathname]);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -300,6 +320,7 @@ const BarcodeSearch = () => {
             <BarcodeScanner
               onScanSuccess={handleScanSuccess}
               onScanError={handleScanError}
+              isActive={isPageActive && scanMode === 'camera'}
             />
           </div>
         )}

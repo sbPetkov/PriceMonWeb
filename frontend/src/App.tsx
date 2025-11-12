@@ -25,6 +25,7 @@ import ShoppingLists from './pages/shopping/ShoppingLists';
 import ShoppingListDetail from './pages/shopping/ShoppingListDetail';
 import PendingProducts from './pages/admin/PendingProducts';
 import FlaggedPrices from './pages/admin/FlaggedPrices';
+import InstallApp from './pages/InstallApp';
 
 const App: React.FC = () => {
   return (
@@ -40,6 +41,7 @@ const App: React.FC = () => {
           <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
           <Route path="/about" element={<About />} />
           <Route path="/how-it-works" element={<HowItWorks />} />
+          <Route path="/install" element={<InstallApp />} />
           <Route path="/contact" element={<ContactUs />} />
 
           {/* Protected routes with MainLayout */}

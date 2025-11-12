@@ -148,14 +148,6 @@ const BottomNavigation = () => {
               );
             })}
           </nav>
-
-          {/* Bottom Info */}
-          <div className="absolute bottom-6 left-6 right-6">
-            <div className="bg-gradient-to-r from-primary-50 to-secondary-50 rounded-lg p-4 border border-primary-100">
-              <p className="text-sm font-medium text-gray-800 mb-1">Phase 4 Complete! 🎉</p>
-              <p className="text-xs text-gray-600">All core features are now available</p>
-            </div>
-          </div>
         </div>
       </div>
     </>

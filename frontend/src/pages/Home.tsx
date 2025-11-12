@@ -211,6 +211,38 @@ const Home: React.FC = () => {
           )}
         </div>
 
+        {/* Install App Banner - only show if not already installed */}
+        {!window.matchMedia('(display-mode: standalone)').matches && (
+          <div className="card mb-8 bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-start gap-3 flex-1">
+                <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-bold text-text-primary mb-1">
+                    Get the App Experience!
+                  </h3>
+                  <p className="text-sm text-text-secondary">
+                    Install PriceMon on your device for faster access, full-screen scanning, and a native app feel.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => navigate('/install')}
+                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-lg transition-all shadow-md hover:shadow-lg whitespace-nowrap"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Install App
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Coming Soon Notice */}
         <div className="card bg-gradient-to-r from-primary-50 to-secondary-50 border-2 border-dashed border-primary-200">
           <div className="text-center py-8">
