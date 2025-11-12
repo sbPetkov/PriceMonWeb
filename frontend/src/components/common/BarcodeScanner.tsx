@@ -30,10 +30,18 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '', isActive =
     try {
       console.log('Stopping camera scanner...');
 
+      // Stop the ZXing scanner first
+      if (scannerRef.current) {
+        scannerRef.current.reset();
+      }
+
       // Stop video stream by stopping all tracks
       if (videoRef.current && videoRef.current.srcObject) {
         const stream = videoRef.current.srcObject as MediaStream;
-        stream.getTracks().forEach(track => track.stop());
+        stream.getTracks().forEach(track => {
+          track.stop();
+          console.log('Stopped track:', track.kind, track.label);
+        });
         videoRef.current.srcObject = null;
       }
 
@@ -47,6 +55,13 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '', isActive =
     } catch (err) {
       console.error('Error stopping scanner:', err);
       // Force reset even on error
+      if (scannerRef.current) {
+        try {
+          scannerRef.current.reset();
+        } catch (resetErr) {
+          console.error('Error resetting scanner:', resetErr);
+        }
+      }
       scannerRef.current = null;
       isScanningRef.current = false;
       hasScannedRef.current = false;
@@ -130,19 +145,33 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '', isActive =
   const getCameraLabel = (device: MediaDeviceInfo): string => {
     const label = device.label.toLowerCase();
 
-    // iPhone/iOS detection patterns
-    if (label.includes('ultra') || label.includes('0.5')) {
+    // iPhone/iOS detection patterns (more specific first)
+    if (label.includes('ultra') && (label.includes('0.5') || label.includes('wide'))) {
       return 'Ultra Wide (0.5×)';
     }
     if (label.includes('telephoto') || label.includes('2x') || label.includes('3x')) {
       return 'Telephoto (2-3×)';
     }
 
-    // Android detection patterns
-    if (label.includes('wide 0') || label.includes('ultra')) {
+    // Android specific patterns (check camera index/id in label)
+    // Samsung often uses "camera 0", "camera 1", "camera 2" etc.
+    if (label.includes('camera 0') || label.includes('wide 0')) {
       return 'Ultra Wide';
     }
-    if (label.includes('wide 2') || label.includes('telephoto')) {
+    if (label.includes('camera 1') || label.includes('wide 1')) {
+      return 'Wide (1×)';
+    }
+    if (label.includes('camera 2') || label.includes('wide 2') || label.includes('telephoto')) {
+      return 'Telephoto';
+    }
+
+    // Generic ultra-wide detection
+    if (label.includes('ultra')) {
+      return 'Ultra Wide';
+    }
+
+    // Generic telephoto detection
+    if (label.includes('tele')) {
       return 'Telephoto';
     }
 
@@ -151,7 +180,7 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '', isActive =
       return 'Wide (1×)';
     }
 
-    // Fallback
+    // Fallback - use original label if we can't determine
     return device.label || 'Camera';
   };
 
@@ -185,27 +214,35 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '', isActive =
 
       const videoDevices = backCameras.length > 0 ? backCameras : allVideoDevices;
 
-      // Deduplicate cameras with same friendly labels (iOS often exposes same camera multiple times)
-      const uniqueCameras: MediaDeviceInfo[] = [];
-      const seenLabels = new Set<string>();
+      // Group cameras by label and add index numbers for duplicates
+      const labelCounts = new Map<string, number>();
+      const processedCameras: MediaDeviceInfo[] = [];
 
+      // First pass: count how many cameras have each label
       for (const device of videoDevices) {
-        const friendlyLabel = getCameraLabel(device);
-        if (!seenLabels.has(friendlyLabel)) {
-          seenLabels.add(friendlyLabel);
-          uniqueCameras.push(device);
+        const label = getCameraLabel(device);
+        labelCounts.set(label, (labelCounts.get(label) || 0) + 1);
+      }
+
+      // Second pass: keep all cameras (for Android devices with similar but different cameras)
+      // Only deduplicate true duplicates (exact same device appearing multiple times)
+      const seenDeviceIds = new Set<string>();
+      for (const device of videoDevices) {
+        if (!seenDeviceIds.has(device.deviceId)) {
+          seenDeviceIds.add(device.deviceId);
+          processedCameras.push(device);
         }
       }
 
-      if (uniqueCameras.length > 0) {
-        setCameras(uniqueCameras);
+      if (processedCameras.length > 0) {
+        setCameras(processedCameras);
 
         // Smart camera selection - prefer wide (1x) as default
         // Priority: wide/main > ultra-wide > telephoto > first available
-        let preferredCamera = uniqueCameras[0]; // Default to first
+        let preferredCamera = processedCameras[0]; // Default to first
 
         // Try to find the best default camera
-        for (const device of uniqueCameras) {
+        for (const device of processedCameras) {
           const label = device.label.toLowerCase();
 
           // Highest priority: main/wide camera (1x - best balance for most use cases)
@@ -218,8 +255,8 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '', isActive =
         }
 
         // If no main camera found, try ultra-wide (good for close-up scanning)
-        if (preferredCamera === uniqueCameras[0]) {
-          for (const device of uniqueCameras) {
+        if (preferredCamera === processedCameras[0]) {
+          for (const device of processedCameras) {
             const label = device.label.toLowerCase();
             if (label.includes('ultra') || label.includes('0.5') || label.includes('wide 0')) {
               preferredCamera = device;
@@ -275,10 +312,37 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '', isActive =
   // Stop camera when component becomes inactive (e.g., user navigates to another tab in SPA)
   useEffect(() => {
     if (!isActive && isScanningRef.current) {
-      console.log('Component inactive, stopping camera...');
-      stopScanning();
+      console.log('Component inactive (isActive=false), stopping camera...');
+
+      // Immediately stop camera without waiting for async stopScanning
+      try {
+        // Stop the ZXing scanner
+        if (scannerRef.current) {
+          scannerRef.current.reset();
+          scannerRef.current = null;
+        }
+
+        // Stop video stream
+        if (videoRef.current && videoRef.current.srcObject) {
+          const stream = videoRef.current.srcObject as MediaStream;
+          stream.getTracks().forEach(track => {
+            track.stop();
+            console.log('Stopped camera track (inactive):', track.kind);
+          });
+          videoRef.current.srcObject = null;
+        }
+
+        // Reset refs and state
+        isScanningRef.current = false;
+        hasScannedRef.current = false;
+        setIsScanning(false);
+
+        console.log('Camera stopped due to inactivity');
+      } catch (err) {
+        console.error('Error stopping camera on inactive:', err);
+      }
     }
-  }, [isActive, stopScanning]);
+  }, [isActive]);
 
   const startScanning = useCallback(async () => {
     if (!permissionsGranted || !selectedCamera) {
@@ -299,18 +363,29 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '', isActive =
         cameraSwitchTimeoutRef.current = null;
       }
 
-      if (isScanningRef.current) {
-        console.log('Component unmounting, cleaning up scanner...');
-        try {
-          // Stop video stream
-          if (videoRef.current && videoRef.current.srcObject) {
-            const stream = videoRef.current.srcObject as MediaStream;
-            stream.getTracks().forEach(track => track.stop());
-            videoRef.current.srcObject = null;
-          }
-        } catch (err) {
-          console.error('Error during cleanup:', err);
+      console.log('Component unmounting, cleaning up scanner...');
+      try {
+        // Stop the ZXing scanner first (important!)
+        if (scannerRef.current) {
+          scannerRef.current.reset();
+          scannerRef.current = null;
         }
+
+        // Stop video stream tracks
+        if (videoRef.current && videoRef.current.srcObject) {
+          const stream = videoRef.current.srcObject as MediaStream;
+          stream.getTracks().forEach(track => {
+            track.stop();
+            console.log('Stopped camera track:', track.kind);
+          });
+          videoRef.current.srcObject = null;
+        }
+
+        // Reset state
+        isScanningRef.current = false;
+        hasScannedRef.current = false;
+      } catch (err) {
+        console.error('Error during cleanup:', err);
       }
     };
   }, []);
@@ -343,9 +418,17 @@ const BarcodeScanner = ({ onScanSuccess, onScanError, className = '', isActive =
             Select Camera
           </label>
           <div className="flex gap-2 flex-wrap">
-            {cameras.map((camera) => {
+            {cameras.map((camera, index) => {
               const isSelected = selectedCamera === camera.deviceId;
-              const label = getCameraLabel(camera);
+              const baseLabel = getCameraLabel(camera);
+
+              // Count how many cameras share this label
+              const sameLabelCameras = cameras.filter(c => getCameraLabel(c) === baseLabel);
+
+              // Add index number if there are duplicates
+              const label = sameLabelCameras.length > 1
+                ? `${baseLabel} #${sameLabelCameras.findIndex(c => c.deviceId === camera.deviceId) + 1}`
+                : baseLabel;
 
               return (
                 <button
