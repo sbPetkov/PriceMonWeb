@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { getFieldErrors } from '../../services/api';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import AuthFooter from '../../components/AuthFooter';
+import PublicNavbar from '../../components/PublicNavbar';
 
 const Login: React.FC = () => {
+  const { t } = useTranslation('auth');
   const navigate = useNavigate();
   const { login, error: authError, clearError } = useAuth();
 
@@ -46,12 +49,12 @@ const Login: React.FC = () => {
     // Client-side validation
     const errors: Record<string, string> = {};
     if (!formData.email.trim()) {
-      errors.email = 'Email is required';
+      errors.email = t('messages.emailRequired');
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      errors.email = 'Invalid email address';
+      errors.email = t('messages.invalidEmail');
     }
     if (!formData.password) {
-      errors.password = 'Password is required';
+      errors.password = t('messages.passwordRequired');
     }
 
     if (Object.keys(errors).length > 0) {
@@ -72,13 +75,17 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
-      {/* Left side - Branding (hidden on mobile, visible on desktop) */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary-500 to-primary-700 p-12 items-center justify-center">
+    <div className="min-h-screen flex flex-col">
+      {/* Public Navigation */}
+      <PublicNavbar />
+
+      <div className="flex-1 flex flex-col lg:flex-row">
+        {/* Left side - Branding (hidden on mobile, visible on desktop) */}
+        <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary-500 to-primary-700 p-12 items-center justify-center">
         <div className="max-w-md text-white">
           <h1 className="text-5xl font-bold mb-6">PriceMon</h1>
           <p className="text-xl mb-8 text-primary-50">
-            Track prices across Bulgarian stores and never overpay again.
+            {t('login.branding.tagline')}
           </p>
           <div className="space-y-4">
             <div className="flex items-start space-x-3">
@@ -86,8 +93,8 @@ const Login: React.FC = () => {
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
               <div>
-                <h3 className="font-semibold">Scan & Compare</h3>
-                <p className="text-sm text-primary-100">Scan barcodes and compare prices instantly</p>
+                <h3 className="font-semibold">{t('login.branding.feature1Title')}</h3>
+                <p className="text-sm text-primary-100">{t('login.branding.feature1Desc')}</p>
               </div>
             </div>
             <div className="flex items-start space-x-3">
@@ -95,8 +102,8 @@ const Login: React.FC = () => {
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
               <div>
-                <h3 className="font-semibold">Community Powered</h3>
-                <p className="text-sm text-primary-100">Trusted price data from real shoppers</p>
+                <h3 className="font-semibold">{t('login.branding.feature2Title')}</h3>
+                <p className="text-sm text-primary-100">{t('login.branding.feature2Desc')}</p>
               </div>
             </div>
             <div className="flex items-start space-x-3">
@@ -104,31 +111,31 @@ const Login: React.FC = () => {
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
               <div>
-                <h3 className="font-semibold">Save Money</h3>
-                <p className="text-sm text-primary-100">Find the best deals and save on every purchase</p>
+                <h3 className="font-semibold">{t('login.branding.feature3Title')}</h3>
+                <p className="text-sm text-primary-100">{t('login.branding.feature3Desc')}</p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Right side - Login Form */}
-      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-12 bg-background">
-        <div className="w-full max-w-md">
+        {/* Right side - Login Form */}
+        <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-12 bg-background">
+          <div className="w-full max-w-md">
           {/* Mobile branding */}
           <div className="lg:hidden text-center mb-8">
             <h1 className="text-4xl font-bold text-primary mb-2">PriceMon</h1>
-            <p className="text-text-secondary">Track prices, save money</p>
+            <p className="text-text-secondary">{t('login.branding.tagline')}</p>
           </div>
 
           {/* Login Card */}
           <div className="card animate-fadeIn">
             <div className="mb-8">
               <h2 className="text-2xl sm:text-3xl font-bold text-text-primary mb-2">
-                Welcome back
+                {t('login.welcomeBack')}
               </h2>
               <p className="text-text-secondary">
-                Sign in to your account to continue
+                {t('login.signInToAccount')}
               </p>
             </div>
 
@@ -148,8 +155,8 @@ const Login: React.FC = () => {
                 id="email"
                 name="email"
                 type="email"
-                label="Email"
-                placeholder="your@email.com"
+                label={t('login.email')}
+                placeholder={t('login.emailPlaceholder')}
                 value={formData.email}
                 onChange={handleChange}
                 error={fieldErrors.email}
@@ -168,8 +175,8 @@ const Login: React.FC = () => {
                   id="password"
                   name="password"
                   type={showPassword ? "text" : "password"}
-                  label="Password"
-                  placeholder="Enter your password"
+                  label={t('login.password')}
+                  placeholder={t('login.passwordPlaceholder')}
                   value={formData.password}
                   onChange={handleChange}
                   error={fieldErrors.password}
@@ -207,7 +214,7 @@ const Login: React.FC = () => {
                     className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary focus:ring-2"
                   />
                   <span className="ml-2 text-sm text-text-secondary">
-                    Remember me
+                    {t('login.rememberMe')}
                   </span>
                 </label>
 
@@ -215,7 +222,7 @@ const Login: React.FC = () => {
                   to="/forgot-password"
                   className="text-sm font-medium text-primary hover:text-primary-600 transition-colors"
                 >
-                  Forgot password?
+                  {t('login.forgotPassword')}
                 </Link>
               </div>
 
@@ -226,7 +233,7 @@ const Login: React.FC = () => {
                 fullWidth
                 isLoading={isLoading}
               >
-                Sign In
+                {t('login.submit')}
               </Button>
             </form>
 
@@ -238,7 +245,7 @@ const Login: React.FC = () => {
                 </div>
                 <div className="relative flex justify-center text-sm">
                   <span className="px-4 bg-surface text-text-secondary">
-                    Don't have an account?
+                    {t('login.noAccount')}
                   </span>
                 </div>
               </div>
@@ -252,25 +259,26 @@ const Login: React.FC = () => {
                 size="lg"
                 fullWidth
               >
-                Create Account
+                {t('login.createAccount')}
               </Button>
             </Link>
           </div>
 
           {/* Footer */}
           <p className="mt-8 text-center text-sm text-text-secondary">
-            By signing in, you agree to our{' '}
+            {t('login.termsText')}{' '}
             <a href="#" className="text-primary hover:text-primary-600 transition-colors">
-              Terms of Service
+              {t('login.termsLink')}
             </a>{' '}
-            and{' '}
+            {t('login.and')}{' '}
             <a href="#" className="text-primary hover:text-primary-600 transition-colors">
-              Privacy Policy
+              {t('login.privacyLink')}
             </a>
           </p>
 
           {/* Public Pages Footer */}
           <AuthFooter />
+          </div>
         </div>
       </div>
     </div>

@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { createProduct, getCategoryTree } from '../../services/productService';
 import { getErrorMessage, getFieldErrors } from '../../services/api';
 import type { ProductCreateRequest, CategoryTree, FieldErrors } from '../../types';
 
 const AddProduct = () => {
+  const { t } = useTranslation('products');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const barcodeFromUrl = searchParams.get('barcode') || '';
@@ -58,15 +60,15 @@ const AddProduct = () => {
     const errors: FieldErrors<ProductCreateRequest> = {};
 
     if (!formData.barcode.trim()) {
-      errors.barcode = 'Barcode is required';
+      errors.barcode = t('addProduct.barcodeRequired');
     }
 
     if (!formData.name.trim()) {
-      errors.name = 'Product name is required';
+      errors.name = t('addProduct.productNameRequired');
     }
 
     if (!formData.brand.trim()) {
-      errors.brand = 'Brand is required';
+      errors.brand = t('addProduct.brandRequired');
     }
 
     setFieldErrors(errors);
@@ -90,9 +92,7 @@ const AddProduct = () => {
       // Users can view and add prices to their own pending products
       if (product.is_pending) {
         // Show info message about pending approval
-        alert(
-          'Product added successfully! (+5 points earned)\n\nYour product is pending admin approval, but you can start adding prices to it right away. It will be visible to everyone once approved.'
-        );
+        alert(t('addProduct.successAlert'));
       }
 
       // Redirect to product details page (works for both pending and approved)
@@ -150,9 +150,9 @@ const AddProduct = () => {
               />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Add New Product</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('addProduct.title')}</h1>
           <p className="text-gray-600">
-            Product not found? Add it to our database!
+            {t('addProduct.subtitle')}
           </p>
         </div>
 
@@ -180,7 +180,7 @@ const AddProduct = () => {
             {/* Barcode */}
             <div>
               <label htmlFor="barcode" className="block text-sm font-medium text-gray-700 mb-2">
-                Barcode <span className="text-red-500">*</span>
+                {t('addProduct.barcodeLabel')} <span className="text-red-500">*</span>
               </label>
               <input
                 id="barcode"
@@ -188,7 +188,7 @@ const AddProduct = () => {
                 type="text"
                 value={formData.barcode}
                 onChange={handleChange}
-                placeholder="Enter barcode"
+                placeholder={t('addProduct.barcodePlaceholder')}
                 className={`w-full px-4 py-3 border ${
                   fieldErrors.barcode ? 'border-red-500' : 'border-gray-300'
                 } rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all font-mono`}
@@ -203,7 +203,7 @@ const AddProduct = () => {
             {/* Product Name */}
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                Product Name <span className="text-red-500">*</span>
+                {t('addProduct.productNameLabel')} <span className="text-red-500">*</span>
               </label>
               <input
                 id="name"
@@ -211,7 +211,7 @@ const AddProduct = () => {
                 type="text"
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="e.g., Chocolate Bar"
+                placeholder={t('addProduct.productNamePlaceholder')}
                 className={`w-full px-4 py-3 border ${
                   fieldErrors.name ? 'border-red-500' : 'border-gray-300'
                 } rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all`}
@@ -226,7 +226,7 @@ const AddProduct = () => {
             {/* Brand */}
             <div>
               <label htmlFor="brand" className="block text-sm font-medium text-gray-700 mb-2">
-                Brand <span className="text-red-500">*</span>
+                {t('addProduct.brandLabel')} <span className="text-red-500">*</span>
               </label>
               <input
                 id="brand"
@@ -234,7 +234,7 @@ const AddProduct = () => {
                 type="text"
                 value={formData.brand}
                 onChange={handleChange}
-                placeholder="e.g., Milka"
+                placeholder={t('addProduct.brandPlaceholder')}
                 className={`w-full px-4 py-3 border ${
                   fieldErrors.brand ? 'border-red-500' : 'border-gray-300'
                 } rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all`}
@@ -249,7 +249,7 @@ const AddProduct = () => {
             {/* Category */}
             <div>
               <label htmlFor="category_id" className="block text-sm font-medium text-gray-700 mb-2">
-                Category
+                {t('addProduct.categoryLabel')}
               </label>
               <select
                 id="category_id"
@@ -259,7 +259,7 @@ const AddProduct = () => {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white"
                 disabled={isLoading || isLoadingCategories}
               >
-                <option value="">Select a category (optional)</option>
+                <option value="">{t('addProduct.categoryPlaceholder')}</option>
                 {renderCategoryOptions(categories)}
               </select>
             </div>
@@ -267,14 +267,14 @@ const AddProduct = () => {
             {/* Description */}
             <div>
               <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-                Description
+                {t('addProduct.descriptionLabel')}
               </label>
               <textarea
                 id="description"
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                placeholder="Optional description (e.g., size, flavor, ingredients)"
+                placeholder={t('addProduct.descriptionPlaceholder')}
                 rows={3}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"
                 disabled={isLoading}
@@ -284,7 +284,7 @@ const AddProduct = () => {
             {/* Image URL */}
             <div>
               <label htmlFor="image_url" className="block text-sm font-medium text-gray-700 mb-2">
-                Image URL
+                {t('addProduct.imageUrlLabel')}
               </label>
               <input
                 id="image_url"
@@ -292,12 +292,12 @@ const AddProduct = () => {
                 type="url"
                 value={formData.image_url}
                 onChange={handleChange}
-                placeholder="https://example.com/product-image.jpg"
+                placeholder={t('addProduct.imageUrlPlaceholder')}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                 disabled={isLoading}
               />
               <p className="mt-1 text-sm text-gray-500">
-                Optional: Link to product image
+                {t('addProduct.imageUrlHelper')}
               </p>
             </div>
 
@@ -309,7 +309,7 @@ const AddProduct = () => {
                 className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-6 rounded-lg transition-all"
                 disabled={isLoading}
               >
-                Cancel
+                {t('addProduct.cancel')}
               </button>
               <button
                 type="submit"
@@ -338,10 +338,10 @@ const AddProduct = () => {
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       ></path>
                     </svg>
-                    Submitting...
+                    {t('addProduct.submitting')}
                   </>
                 ) : (
-                  'Add Product'
+                  t('addProduct.submit')
                 )}
               </button>
             </div>
@@ -362,10 +362,9 @@ const AddProduct = () => {
                 />
               </svg>
               <div>
-                <p className="font-medium text-gray-900 mb-1">Review Process:</p>
+                <p className="font-medium text-gray-900 mb-1">{t('addProduct.reviewTitle')}</p>
                 <p>
-                  New products are reviewed by our team before going live. This helps maintain
-                  database quality. You'll be able to add prices once the product is approved.
+                  {t('addProduct.reviewDescription')}
                 </p>
               </div>
             </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { getProductById, createPrice, getStores, createStore, getProductPriceHistory, toggleFavorite } from '../../services/productService';
 import { verifyPrice, checkUserVotes } from '../../services/userActivityService';
 import { getShoppingLists, createShoppingList, addItem } from '../../services/shoppingListService';
@@ -9,6 +10,7 @@ import type { Product, Store, ProductPriceCreateRequest, FieldErrors, PriceHisto
 import PriceHistoryChart from '../../components/common/PriceHistoryChart';
 
 const ProductDetails = () => {
+  const { t } = useTranslation('products');
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -43,6 +45,10 @@ const ProductDetails = () => {
   const [error, setError] = useState('');
   const [isFavorite, setIsFavorite] = useState(false);
   const [userVotes, setUserVotes] = useState<Record<number, 'positive' | 'negative'>>({});
+
+  // Get prices from priceHistory (already filtered by period on backend)
+  // Reverse to show newest prices first
+  const filteredPrices = [...(priceHistory?.all_prices || [])].reverse();
 
   // Shopping List Modal State
   const [showAddToListModal, setShowAddToListModal] = useState(false);
@@ -79,22 +85,29 @@ const ProductDetails = () => {
   const [isStoreSearchFocused, setIsStoreSearchFocused] = useState(false);
   const storeSearchRef = useRef<HTMLDivElement>(null);
 
-  // Load product, stores, and price history
+  // Ref to prevent duplicate API calls in React StrictMode
+  const votesLoadedRef = useRef(false);
+  const hasLoadedInitialData = useRef(false);
+
+  // Load product and price history (stores are lazy loaded)
   useEffect(() => {
     const loadData = async () => {
+      // Prevent duplicate calls in StrictMode
+      if (hasLoadedInitialData.current) return;
+      hasLoadedInitialData.current = true;
+
       try {
-        const [productData, storesData, historyData] = await Promise.all([
+        // OPTIMIZATION: Removed stores from initial load - will fetch when needed
+        const [productData, historyData] = await Promise.all([
           getProductById(parseInt(id || '0')),
-          getStores(),
           getProductPriceHistory(parseInt(id || '0'), chartPeriod),
         ]);
         setProduct(productData);
-        setStores(storesData.results);
         setPriceHistory(historyData);
 
-        // Load user votes for all prices
-        if (productData.latest_prices && productData.latest_prices.length > 0) {
-          const priceIds = productData.latest_prices.map(p => p.id);
+        // Load user votes for all prices from price history
+        if (historyData.all_prices && historyData.all_prices.length > 0) {
+          const priceIds = historyData.all_prices.map(p => p.id);
           try {
             const votesResponse = await checkUserVotes(priceIds);
             setUserVotes(votesResponse.votes);
@@ -113,7 +126,18 @@ const ProductDetails = () => {
     if (id) {
       loadData();
     }
+
+    // Cleanup function to reset refs when component unmounts or id changes
+    return () => {
+      hasLoadedInitialData.current = false;
+      votesLoadedRef.current = false;
+    };
   }, [id, chartPeriod]);
+
+  // Reset pagination when chart period changes
+  useEffect(() => {
+    setRecentPricesPage(0);
+  }, [chartPeriod]);
 
   // Initialize filtered stores when modal opens
   useEffect(() => {
@@ -169,7 +193,7 @@ const ProductDetails = () => {
 
   const handleCreateNewStore = async () => {
     if (!newStoreName.trim() || !newStoreAddress.trim() || !newStoreCity.trim()) {
-      alert('Please enter store name, address, and city');
+      alert(t('messages.enterStoreName'));
       return;
     }
 
@@ -188,7 +212,7 @@ const ProductDetails = () => {
       setNewStoreName('');
       setNewStoreAddress('');
       setNewStoreCity('');
-      alert('Store created successfully!');
+      alert(t('messages.storeCreated'));
     } catch (err) {
       alert(getErrorMessage(err));
     } finally {
@@ -204,9 +228,9 @@ const ProductDetails = () => {
       // Update local state for user votes
       setUserVotes(prev => ({ ...prev, [priceId]: voteType }));
 
-      // Update product state to reflect new vote counts
-      if (product) {
-        const updatedPrices = product.latest_prices.map(price => {
+      // Update priceHistory state to reflect new vote counts
+      if (priceHistory) {
+        const updatedPrices = priceHistory.all_prices.map(price => {
           if (price.id === priceId) {
             return {
               ...price,
@@ -216,7 +240,7 @@ const ProductDetails = () => {
           }
           return price;
         });
-        setProduct({ ...product, latest_prices: updatedPrices });
+        setPriceHistory({ ...priceHistory, all_prices: updatedPrices });
       }
     } catch (err) {
       alert(getErrorMessage(err));
@@ -248,7 +272,7 @@ const ProductDetails = () => {
 
   const handleCreateList = async () => {
     if (!newListName.trim()) {
-      alert('Please enter a list name');
+      alert(t('messages.enterListName'));
       return;
     }
 
@@ -261,7 +285,7 @@ const ProductDetails = () => {
       setSelectedListId(newList.id);
       setShowCreateList(false);
       setNewListName('');
-      alert('Shopping list created successfully!');
+      alert(t('messages.listCreated'));
     } catch (err) {
       alert(getErrorMessage(err));
     } finally {
@@ -271,7 +295,7 @@ const ProductDetails = () => {
 
   const handleAddToList = async () => {
     if (!selectedListId || !product) {
-      alert('Please select a shopping list');
+      alert(t('messages.selectList'));
       return;
     }
 
@@ -281,13 +305,30 @@ const ProductDetails = () => {
         product_id: product.id,
         quantity: itemQuantity,
       });
-      alert('Product added to shopping list!');
+      alert(t('messages.addedToList'));
       setShowAddToListModal(false);
       setItemQuantity(1);
     } catch (err) {
       alert(getErrorMessage(err));
     } finally {
       setIsAddingToList(false);
+    }
+  };
+
+  // OPTIMIZATION: Lazy load stores only when Add Price modal is opened
+  const handleOpenAddPrice = async () => {
+    setShowAddPrice(true);
+
+    // Only fetch stores if not already loaded
+    if (stores.length === 0) {
+      try {
+        const storesData = await getStores();
+        setStores(storesData.results);
+        setFilteredStores(storesData.results);
+      } catch (err) {
+        console.error('Failed to load stores:', err);
+        alert(t('messages.failedLoadStores'));
+      }
     }
   };
 
@@ -311,10 +352,10 @@ const ProductDetails = () => {
     // Validation
     const errors: FieldErrors<ProductPriceCreateRequest> = {};
     if (!priceFormData.store_id || priceFormData.store_id === 0) {
-      errors.store_id = 'Please select a store';
+      errors.store_id = t('messages.selectStore');
     }
     if (!priceFormData.price_entered || parseFloat(priceFormData.price_entered) <= 0) {
-      errors.price_entered = 'Please enter a valid price';
+      errors.price_entered = t('messages.enterValidPrice');
     }
 
     if (Object.keys(errors).length > 0) {
@@ -330,17 +371,28 @@ const ProductDetails = () => {
 
       // Only show message if price was flagged as outlier
       if (response.is_flagged) {
-        alert('Your price seems unusually high or low compared to other submissions. It will be reviewed by our team before being displayed.');
+        alert(t('messages.priceOutlier'));
       }
 
       setShowAddPrice(false);
       // Reload product and price history to show new price
       const [updatedProduct, updatedHistory] = await Promise.all([
         getProductById(parseInt(id || '0')),
-        getProductPriceHistory(parseInt(id || '0')),
+        getProductPriceHistory(parseInt(id || '0'), chartPeriod),
       ]);
       setProduct(updatedProduct);
       setPriceHistory(updatedHistory);
+
+      // Reload user votes for the updated price list
+      if (updatedHistory.all_prices && updatedHistory.all_prices.length > 0) {
+        const priceIds = updatedHistory.all_prices.map(p => p.id);
+        try {
+          const votesResponse = await checkUserVotes(priceIds);
+          setUserVotes(votesResponse.votes);
+        } catch (err) {
+          console.log('Could not load user votes:', err);
+        }
+      }
       // Reset form
       setPriceFormData({
         product: parseInt(id || '0'),
@@ -393,7 +445,7 @@ const ProductDetails = () => {
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
             ></path>
           </svg>
-          <p className="text-gray-600">Loading product...</p>
+          <p className="text-gray-600">{t('loadingProduct')}</p>
         </div>
       </div>
     );
@@ -412,13 +464,13 @@ const ProductDetails = () => {
               />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Product Not Found</h2>
-          <p className="text-gray-600 mb-6">{error || 'The product you are looking for does not exist.'}</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('productNotFound')}</h2>
+          <p className="text-gray-600 mb-6">{error || t('productNotFoundDesc')}</p>
           <button
             onClick={() => navigate('/')}
             className="bg-primary hover:bg-primary/90 text-white font-semibold py-2 px-6 rounded-lg transition-all"
           >
-            Go Home
+            {t('goHome')}
           </button>
         </div>
       </div>
@@ -436,7 +488,7 @@ const ProductDetails = () => {
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          Back
+          {t('back')}
         </button>
 
         {/* Pending Approval Banner */}
@@ -448,10 +500,10 @@ const ProductDetails = () => {
               </svg>
               <div className="flex-1">
                 <h3 className="text-xs sm:text-sm font-semibold text-yellow-900 mb-1">
-                  Product Pending Admin Approval
+                  {t('pending.title')}
                 </h3>
                 <p className="text-xs sm:text-sm text-yellow-800">
-                  This product is waiting for admin review. You can still add prices and view it, but it won't be visible to other users until it's approved. You earned +5 trust points for adding this product!
+                  {t('pending.description')}
                 </p>
               </div>
             </div>
@@ -543,7 +595,7 @@ const ProductDetails = () => {
                 {/* Status Badge */}
                 {product.is_pending && (
                   <div className="mt-4 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
-                    Pending Approval
+                    {t('status.pending')}
                   </div>
                 )}
               </div>
@@ -555,20 +607,20 @@ const ProductDetails = () => {
             <div className="p-4 sm:p-6 bg-green-50 border-b border-green-100">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
                 <div>
-                  <p className="text-xs sm:text-sm text-green-700 font-medium mb-1">Best Price (Last 30 Days)</p>
+                  <p className="text-xs sm:text-sm text-green-700 font-medium mb-1">{t('bestPrice')}</p>
                   <p className="text-2xl sm:text-3xl font-bold text-green-600">
                     {convertToPreferredCurrency(product.best_price.price_entered, product.best_price.currency_entered)}
                   </p>
-                  <p className="text-xs sm:text-sm text-green-700 mt-1">at {product.best_price.store.name}</p>
+                  <p className="text-xs sm:text-sm text-green-700 mt-1">{t('at')} {product.best_price.store.name}</p>
                 </div>
                 <button
-                  onClick={() => setShowAddPrice(true)}
+                  onClick={handleOpenAddPrice}
                   className="bg-primary hover:bg-primary/90 text-white font-semibold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition-all flex items-center gap-2 text-sm sm:text-base w-full sm:w-auto justify-center"
                 >
                   <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
-                  Add Price
+                  {t('addPrice')}
                 </button>
               </div>
             </div>
@@ -590,28 +642,28 @@ const ProductDetails = () => {
           {/* Recent Prices */}
           <div className="p-4 sm:p-8">
             <div className="flex items-center justify-between mb-4 sm:mb-6">
-              <h2 className="text-lg sm:text-xl font-bold text-gray-900">Recent Prices</h2>
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900">{t('recentPrices')}</h2>
               {!product.best_price && (
                 <button
-                  onClick={() => setShowAddPrice(true)}
+                  onClick={handleOpenAddPrice}
                   className="bg-primary hover:bg-primary/90 text-white font-semibold py-2 px-4 rounded-lg transition-all flex items-center gap-2 text-sm"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
-                  Add Price
+                  {t('addPrice')}
                 </button>
               )}
             </div>
 
-            {product.latest_prices && product.latest_prices.length > 0 ? (
+            {filteredPrices && filteredPrices.length > 0 ? (
               <>
                 <div className="space-y-4">
-                  {product.latest_prices.slice(recentPricesPage * 10, (recentPricesPage + 1) * 10).map((price, index) => {
+                  {filteredPrices.slice(recentPricesPage * 10, (recentPricesPage + 1) * 10).map((price, index) => {
                   // Calculate trend compared to previous price (if exists)
                   let trend: 'up' | 'down' | 'stable' | null = null;
-                  if (index < product.latest_prices!.length - 1) {
-                    const prevPrice = product.latest_prices![index + 1];
+                  if (index < filteredPrices.length - 1) {
+                    const prevPrice = filteredPrices[index + 1];
                     const currentValue = parseFloat(price.price_eur);
                     const prevValue = parseFloat(prevPrice.price_eur);
                     const diff = currentValue - prevValue;
@@ -652,21 +704,21 @@ const ProductDetails = () => {
                           {trend && (
                             <div className="flex items-center">
                               {trend === 'up' && (
-                                <div className="flex items-center text-red-600" title="Price increased">
+                                <div className="flex items-center text-red-600" title={t('priceDetails.priceIncreased')}>
                                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
                                   </svg>
                                 </div>
                               )}
                               {trend === 'down' && (
-                                <div className="flex items-center text-green-600" title="Price decreased">
+                                <div className="flex items-center text-green-600" title={t('priceDetails.priceDecreased')}>
                                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                   </svg>
                                 </div>
                               )}
                               {trend === 'stable' && (
-                                <div className="flex items-center text-gray-600" title="Price stable">
+                                <div className="flex items-center text-gray-600" title={t('priceDetails.priceStable')}>
                                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14" />
                                   </svg>
@@ -695,7 +747,7 @@ const ProductDetails = () => {
                                   <span className="text-xs font-semibold">{price.negative_votes}</span>
                                 </div>
                               </div>
-                              <span className="text-xs text-gray-500 italic">Your price</span>
+                              <span className="text-xs text-gray-500 italic">{t('priceDetails.yourPrice')}</span>
                             </div>
                           ) : (
                             /* Show vote buttons for other users' prices */
@@ -712,7 +764,7 @@ const ProductDetails = () => {
                                       ? 'opacity-50 cursor-not-allowed text-gray-400'
                                       : 'hover:bg-green-50 text-green-600 border border-gray-200'
                                   }`}
-                                  title="Vote that this price is accurate"
+                                  title={t('priceDetails.voteAccurate')}
                                 >
                                   <svg className="w-4 h-4" fill={userVotes[price.id] === 'positive' ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
@@ -731,7 +783,7 @@ const ProductDetails = () => {
                                       ? 'opacity-50 cursor-not-allowed text-gray-400'
                                       : 'hover:bg-red-50 text-red-600 border border-gray-200'
                                   }`}
-                                  title="Vote that this price is not accurate"
+                                  title={t('priceDetails.voteNotAccurate')}
                                 >
                                   <svg className="w-4 h-4" fill={userVotes[price.id] === 'negative' ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.096c.5 0 .905-.405.905-.904 0-.715.211-1.413.608-2.008L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5" />
@@ -754,7 +806,7 @@ const ProductDetails = () => {
                 </div>
 
                 {/* Pagination */}
-                {product.latest_prices.length > 10 && (
+                {filteredPrices.length > 10 && (
                   <div className="mt-6 flex items-center justify-center gap-4">
                     <button
                       onClick={() => setRecentPricesPage(prev => Math.max(0, prev - 1))}
@@ -764,11 +816,11 @@ const ProductDetails = () => {
                       Previous
                     </button>
                     <span className="text-sm text-gray-600">
-                      Page {recentPricesPage + 1} of {Math.ceil(product.latest_prices.length / 10)}
+                      Page {recentPricesPage + 1} of {Math.ceil(filteredPrices.length / 10)}
                     </span>
                     <button
-                      onClick={() => setRecentPricesPage(prev => Math.min(Math.ceil(product.latest_prices.length / 10) - 1, prev + 1))}
-                      disabled={recentPricesPage >= Math.ceil(product.latest_prices.length / 10) - 1}
+                      onClick={() => setRecentPricesPage(prev => Math.min(Math.ceil(filteredPrices.length / 10) - 1, prev + 1))}
+                      disabled={recentPricesPage >= Math.ceil(filteredPrices.length / 10) - 1}
                       className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                       Next
@@ -793,7 +845,7 @@ const ProductDetails = () => {
                 </svg>
                 <p className="text-gray-500 mb-4">No prices yet for this product</p>
                 <button
-                  onClick={() => setShowAddPrice(true)}
+                  onClick={handleOpenAddPrice}
                   className="text-primary hover:text-primary/80 font-medium"
                 >
                   Be the first to add a price
@@ -808,7 +860,7 @@ const ProductDetails = () => {
       {showAddToListModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowAddToListModal(false)}>
           <div className="bg-white rounded-2xl max-w-md w-full p-6 sm:p-8 my-auto" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Add to Shopping List</h3>
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">{t('addToListModal.title')}</h3>
 
             {shoppingLists.length === 0 && !showCreateList ? (
               /* No Lists - Prompt to Create */
@@ -816,13 +868,13 @@ const ProductDetails = () => {
                 <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
-                <h4 className="text-lg font-semibold text-gray-900 mb-2">No Shopping Lists Yet</h4>
-                <p className="text-gray-500 mb-6">Create your first shopping list to get started</p>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">{t('addToListModal.noListsYet')}</h4>
+                <p className="text-gray-500 mb-6">{t('addToListModal.noListsDesc')}</p>
                 <button
                   onClick={() => setShowCreateList(true)}
                   className="bg-primary hover:bg-primary/90 text-white font-semibold py-2 px-6 rounded-lg transition-all"
                 >
-                  Create Shopping List
+                  {t('addToListModal.createShoppingList')}
                 </button>
               </div>
             ) : showCreateList ? (
@@ -830,13 +882,13 @@ const ProductDetails = () => {
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    List Name <span className="text-red-500">*</span>
+                    {t('addToListModal.listNameLabel')} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={newListName}
                     onChange={(e) => setNewListName(e.target.value)}
-                    placeholder="e.g., Weekly Groceries"
+                    placeholder={t('addToListModal.listNamePlaceholder')}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     disabled={isCreatingList}
                   />
@@ -851,7 +903,7 @@ const ProductDetails = () => {
                     className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 rounded-lg transition-all"
                     disabled={isCreatingList}
                   >
-                    Cancel
+                    {t('addToListModal.cancel')}
                   </button>
                   <button
                     type="button"
@@ -859,7 +911,7 @@ const ProductDetails = () => {
                     disabled={isCreatingList || !newListName.trim()}
                     className="flex-1 bg-primary hover:bg-primary/90 text-white font-semibold py-3 rounded-lg transition-all disabled:opacity-50"
                   >
-                    {isCreatingList ? 'Creating...' : 'Create List'}
+                    {isCreatingList ? t('addToListModal.creating') : t('addToListModal.createList')}
                   </button>
                 </div>
               </div>
@@ -869,7 +921,7 @@ const ProductDetails = () => {
                 {/* Shopping List Selection */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Shopping List <span className="text-red-500">*</span>
+                    {t('addToListModal.shoppingListLabel')} <span className="text-red-500">*</span>
                   </label>
                   <select
                     value={selectedListId || ''}
@@ -879,7 +931,7 @@ const ProductDetails = () => {
                   >
                     {shoppingLists.map((list) => (
                       <option key={list.id} value={list.id}>
-                        {list.name} ({list.item_count} items)
+                        {list.name} ({t('addToListModal.items', { count: list.item_count })})
                       </option>
                     ))}
                   </select>
@@ -888,7 +940,7 @@ const ProductDetails = () => {
                 {/* Quantity Input */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Quantity <span className="text-red-500">*</span>
+                    {t('addToListModal.quantityLabel')} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="number"
@@ -910,7 +962,7 @@ const ProductDetails = () => {
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
-                    Create New List
+                    {t('addToListModal.createNewList')}
                   </button>
                 </div>
 
@@ -925,7 +977,7 @@ const ProductDetails = () => {
                     className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 rounded-lg transition-all"
                     disabled={isAddingToList}
                   >
-                    Cancel
+                    {t('addToListModal.cancel')}
                   </button>
                   <button
                     type="button"
@@ -933,7 +985,7 @@ const ProductDetails = () => {
                     disabled={isAddingToList || !selectedListId}
                     className="flex-1 bg-primary hover:bg-primary/90 text-white font-semibold py-3 rounded-lg transition-all disabled:opacity-50"
                   >
-                    {isAddingToList ? 'Adding...' : 'Add to List'}
+                    {isAddingToList ? t('addToListModal.adding') : t('addToListModal.addToList')}
                   </button>
                 </div>
               </div>
@@ -946,7 +998,7 @@ const ProductDetails = () => {
       {showAddPrice && (
         <div className={`fixed inset-0 bg-black/50 flex ${isStoreSearchFocused ? 'items-start pt-4 sm:pt-8' : 'items-center'} justify-center p-4 z-50 overflow-y-auto`}>
           <div className="bg-white rounded-2xl max-w-md w-full p-4 sm:p-8 my-auto">
-            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Add New Price</h3>
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">{t('addPriceModal.title')}</h3>
 
             <form onSubmit={handleAddPrice} className="space-y-3 sm:space-y-4">
               {priceError && (
@@ -958,7 +1010,7 @@ const ProductDetails = () => {
               {/* Store Selection */}
               <div ref={storeSearchRef}>
                 <label htmlFor="store_search" className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
-                  Store <span className="text-red-500">*</span>
+                  {t('addPriceModal.storeLabel')} <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <input
@@ -978,7 +1030,7 @@ const ProductDetails = () => {
                       // Delay to allow click on dropdown items
                       setTimeout(() => setIsStoreSearchFocused(false), 200);
                     }}
-                    placeholder="Search for a store..."
+                    placeholder={t('addPriceModal.storePlaceholder')}
                     className={`w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border ${
                       priceFieldErrors.store_id ? 'border-red-500' : 'border-gray-300'
                     } rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent`}
@@ -1145,7 +1197,7 @@ const ProductDetails = () => {
               {/* Price */}
               <div>
                 <label htmlFor="price_entered" className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
-                  Price <span className="text-red-500">*</span>
+                  {t('addPriceModal.priceLabel')} <span className="text-red-500">*</span>
                 </label>
                 <input
                   id="price_entered"
@@ -1155,7 +1207,7 @@ const ProductDetails = () => {
                   min="0"
                   value={priceFormData.price_entered}
                   onChange={handlePriceFormChange}
-                  placeholder="0.00"
+                  placeholder={t('addPriceModal.pricePlaceholder')}
                   className={`w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border ${
                     priceFieldErrors.price_entered ? 'border-red-500' : 'border-gray-300'
                   } rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent`}
@@ -1170,7 +1222,7 @@ const ProductDetails = () => {
               {/* Currency */}
               <div>
                 <label htmlFor="currency_entered" className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
-                  Currency
+                  {t('addPriceModal.currencyLabel')}
                 </label>
                 <select
                   id="currency_entered"
@@ -1205,14 +1257,14 @@ const ProductDetails = () => {
                   className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 sm:py-3 text-sm sm:text-base rounded-lg transition-all"
                   disabled={isPriceSubmitting}
                 >
-                  Cancel
+                  {t('addPriceModal.cancel')}
                 </button>
                 <button
                   type="submit"
                   disabled={isPriceSubmitting}
                   className="flex-1 bg-primary hover:bg-primary/90 text-white font-semibold py-2 sm:py-3 text-sm sm:text-base rounded-lg transition-all disabled:opacity-50"
                 >
-                  {isPriceSubmitting ? 'Adding...' : 'Add Price'}
+                  {isPriceSubmitting ? t('addPriceModal.adding') : t('addPriceModal.submit')}
                 </button>
               </div>
             </form>

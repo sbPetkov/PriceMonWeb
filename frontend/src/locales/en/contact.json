@@ -1,0 +1,49 @@
+{
+  "header": {
+    "title": "Contact Us",
+    "subtitle": "We'd love to hear from you! Send us a message and we'll get back to you soon."
+  },
+  "success": {
+    "title": "Message Sent Successfully!",
+    "message": "Thank you for reaching out. We'll get back to you as soon as possible at the email address you provided."
+  },
+  "form": {
+    "title": "Send us a Message",
+    "nameLabel": "Your Name",
+    "namePlaceholder": "John Doe",
+    "emailLabel": "Your Email",
+    "emailPlaceholder": "john@example.com",
+    "subjectLabel": "Subject",
+    "subjectPlaceholder": "What's this about?",
+    "messageLabel": "Message",
+    "messagePlaceholder": "Tell us what's on your mind...",
+    "characterCount": "{{count}}/2000 characters (minimum 10)",
+    "sending": "Sending...",
+    "sendButton": "Send Message",
+    "required": "*"
+  },
+  "info": {
+    "title": "Get in Touch",
+    "email": "Email",
+    "responseTime": "Response Time",
+    "responseTimeValue": "Usually within 24-48 hours",
+    "followUs": "Follow Us",
+    "socialComingSoon": "Social links coming soon!"
+  },
+  "quickLinks": {
+    "title": "Quick Links",
+    "about": "About PriceMon",
+    "howItWorks": "How It Works",
+    "createAccount": "Create Account"
+  },
+  "support": {
+    "title": "Love What We're Building?",
+    "description": "This project is made with passion and runs completely free for everyone! If you find it helpful and want to support its growth, a small contribution would mean the world to us. Every coffee helps keep the servers running and the features coming!",
+    "buyMeCoffee": "Buy me a coffee",
+    "revolut": "Support via Revolut",
+    "thanks": "Your support, no matter how small, makes a huge difference! Thank you for being awesome!"
+  },
+  "errors": {
+    "defaultError": "Failed to send message. Please try again."
+  }
+}

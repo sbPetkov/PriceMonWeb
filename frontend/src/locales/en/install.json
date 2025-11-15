@@ -1,0 +1,111 @@
+{
+  "back": "Back",
+  "title": "Install PriceMon",
+  "subtitle": "Install PriceMon on your device for a faster, native app experience. Access it anytime from your home screen!",
+  "alreadyInstalled": {
+    "title": "App Already Installed!",
+    "description": "PriceMon is installed on your device. You're already enjoying the full app experience!"
+  },
+  "readyToInstall": {
+    "title": "Ready to Install!",
+    "description": "Your browser supports one-click installation. Click below to add PriceMon to your home screen.",
+    "button": "Install PriceMon Now"
+  },
+  "benefits": {
+    "title": "Why Install?",
+    "performance": {
+      "title": "Faster Performance",
+      "description": "Optimized app experience with instant loading"
+    },
+    "fullscreen": {
+      "title": "Full Screen Mode",
+      "description": "No browser UI - more space for scanning"
+    },
+    "homeScreen": {
+      "title": "Home Screen Access",
+      "description": "Launch directly like a native app"
+    },
+    "privacy": {
+      "title": "Better Privacy",
+      "description": "Isolated from browser history and cookies"
+    }
+  },
+  "ios": {
+    "title": "iPhone / iPad (Safari)",
+    "subtitle": "Most common for iOS users",
+    "step1": {
+      "title": "Tap the Share button",
+      "description": "Look for the icon at the bottom of Safari"
+    },
+    "step2": {
+      "title": "Select \"Add to Home Screen\"",
+      "description": "Scroll down and tap the option with a + icon"
+    },
+    "step3": {
+      "title": "Confirm and Install",
+      "description": "The app name will be \"PriceMon\" - tap \"Add\" to finish"
+    },
+    "step4": {
+      "title": "Done! Find the app on your home screen",
+      "description": "PriceMon will now open full-screen like a native app"
+    }
+  },
+  "android": {
+    "title": "Android (Chrome)",
+    "subtitle": "Easiest installation method",
+    "step1": {
+      "title": "Look for the install banner",
+      "description": "Chrome will show an \"Install PriceMon\" banner at the bottom of the screen"
+    },
+    "step2": {
+      "title": "Tap \"Install\"",
+      "description": "Or tap the menu (⋮) → \"Add to Home screen\" / \"Install app\""
+    },
+    "step3": {
+      "title": "Done! Open from your app drawer",
+      "description": "PriceMon appears alongside your other apps"
+    },
+    "installNowPrompt": "You can install right now:",
+    "installButton": "Install PriceMon"
+  },
+  "firefox": {
+    "title": "Android (Firefox)",
+    "subtitle": "Alternative browser",
+    "step1": {
+      "title": "Tap the menu button (⋮)",
+      "description": "Located in the top right corner of Firefox"
+    },
+    "step2": {
+      "title": "Select \"Install\"",
+      "description": "Look for the \"Install\" or \"Add to Home screen\" option with a phone icon"
+    },
+    "step3": {
+      "title": "Confirm installation",
+      "description": "Firefox will add PriceMon to your home screen"
+    }
+  },
+  "desktop": {
+    "title": "Desktop (Chrome / Edge)",
+    "subtitle": "Works on Windows, Mac, Linux",
+    "step1": {
+      "title": "Look for the install icon",
+      "description": "A icon will appear in the address bar"
+    },
+    "step2": {
+      "title": "Click \"Install\"",
+      "description": "Or use menu (⋮) → \"Install PriceMon...\""
+    },
+    "step3": {
+      "title": "Launch as desktop app",
+      "description": "PriceMon opens in its own window, separate from your browser"
+    }
+  },
+  "help": {
+    "title": "Need Help?",
+    "description": "If you don't see the install option, try:",
+    "tip1": "Refreshing the page",
+    "tip2": "Using the browser's menu (⋮ or ⋯)",
+    "tip3": "Making sure you're using a supported browser (Safari, Chrome, Firefox, Edge)",
+    "tip4": "Checking that you're on HTTPS (secure connection)"
+  }
+}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { getFavorites, toggleFavorite, getProducts } from '../services/productService';
 import { getErrorMessage } from '../services/api';
@@ -7,6 +8,7 @@ import type { ProductList } from '../types';
 import ProductCard from '../components/products/ProductCard';
 
 const Home: React.FC = () => {
+  const { t } = useTranslation('common');
   const { user } = useAuth();
   const navigate = useNavigate();
   const [favorites, setFavorites] = useState<ProductList[]>([]);
@@ -86,15 +88,15 @@ const Home: React.FC = () => {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6">
             <div>
               <h2 className="text-2xl sm:text-3xl font-bold text-text-primary mb-2">
-                Welcome back, {user?.first_name || user?.username}!
+                {t('home.welcome', { name: user?.first_name || user?.username })}
               </h2>
               <p className="text-text-secondary">
-                Ready to track prices and save money?
+                {t('home.subtitle')}
               </p>
             </div>
             <div className="mt-4 sm:mt-0 flex items-center space-x-2">
               <div className="px-3 py-1 bg-primary-50 text-primary-600 rounded-full text-sm font-medium">
-                {user?.trust_level} Member
+                {t('home.trustLevel', { level: user?.trust_level })}
               </div>
               <div className="text-xl">
                 {user?.trust_level === 'Gold' && '🥇'}
@@ -111,11 +113,11 @@ const Home: React.FC = () => {
                 {user?.trust_score}
               </div>
               <div className="text-sm text-text-secondary mt-1 flex items-center justify-center gap-1">
-                Trust Score
+                {t('home.trustScore')}
                 <button
                   onClick={() => setShowTrustInfoModal(true)}
                   className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors"
-                  title="Learn about Trust Score"
+                  title={t('home.trustScore')}
                 >
                   <svg className="w-3 h-3 text-primary" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
@@ -128,7 +130,7 @@ const Home: React.FC = () => {
                 {user?.total_products_added}
               </div>
               <div className="text-sm text-text-secondary mt-1">
-                Products Added
+                {t('home.productsAdded')}
               </div>
             </div>
             <div className="text-center p-4 bg-background rounded-lg">
@@ -136,13 +138,13 @@ const Home: React.FC = () => {
                 {user?.total_prices_added}
               </div>
               <div className="text-sm text-text-secondary mt-1">
-                Prices Submitted
+                {t('home.pricesSubmitted')}
               </div>
             </div>
             <div className="text-center p-4 bg-background rounded-lg">
               <div className="text-xl">{user?.preferred_currency}</div>
               <div className="text-sm text-text-secondary mt-1">
-                Currency
+                {t('home.currency')}
               </div>
             </div>
           </div>
@@ -151,7 +153,7 @@ const Home: React.FC = () => {
         {/* Favorite Products */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-gray-900">Favorite Products</h2>
+            <h2 className="text-xl font-bold text-gray-900">{t('home.favoriteProducts')}</h2>
             <button
               onClick={() => setShowSearchModal(true)}
               className="text-primary hover:text-primary/80 text-sm font-medium flex items-center gap-1"
@@ -159,7 +161,7 @@ const Home: React.FC = () => {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
-              Search Products
+              {t('home.searchProducts')}
             </button>
           </div>
 
@@ -169,7 +171,7 @@ const Home: React.FC = () => {
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              <p className="mt-4 text-gray-500">Loading favorites...</p>
+              <p className="mt-4 text-gray-500">{t('home.loadingFavorites')}</p>
             </div>
           ) : error ? (
             <div className="text-center py-12">
@@ -185,8 +187,8 @@ const Home: React.FC = () => {
               <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No Favorites Yet</h3>
-              <p className="text-gray-500 mb-4">Start adding products to your favorites for quick access</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('home.noFavoritesTitle')}</h3>
+              <p className="text-gray-500 mb-4">{t('home.noFavoritesDesc')}</p>
               <button
                 onClick={() => setShowSearchModal(true)}
                 className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-white font-semibold py-2 px-6 rounded-lg transition-all"
@@ -194,7 +196,7 @@ const Home: React.FC = () => {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-                Search Products
+                {t('home.searchProducts')}
               </button>
             </div>
           ) : (
@@ -223,10 +225,10 @@ const Home: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="font-bold text-text-primary mb-1">
-                    Get the App Experience!
+                    {t('home.installAppTitle')}
                   </h3>
                   <p className="text-sm text-text-secondary">
-                    Install PriceMon on your device for faster access, full-screen scanning, and a native app feel.
+                    {t('home.installAppDesc')}
                   </p>
                 </div>
               </div>
@@ -237,7 +239,7 @@ const Home: React.FC = () => {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
-                Install App
+                {t('home.installApp')}
               </button>
             </div>
           </div>
@@ -247,10 +249,10 @@ const Home: React.FC = () => {
         <div className="card bg-gradient-to-r from-primary-50 to-secondary-50 border-2 border-dashed border-primary-200">
           <div className="text-center py-8">
             <h3 className="text-xl font-semibold text-text-primary mb-2">
-              More Features Coming Soon! 🚀
+              {t('home.comingSoonTitle')}
             </h3>
             <p className="text-text-secondary">
-              Phase 2 in progress! Thank you for your patience.
+              {t('home.comingSoonDesc')}
             </p>
           </div>
         </div>
@@ -269,7 +271,7 @@ const Home: React.FC = () => {
             {/* Header with Search Input */}
             <div className="bg-gradient-to-r from-primary to-primary/90 text-white p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-bold">Search Products</h2>
+                <h2 className="text-2xl font-bold">{t('home.searchModal.title')}</h2>
                 <button
                   onClick={() => setShowSearchModal(false)}
                   className="text-white/80 hover:text-white transition-colors"
@@ -286,7 +288,7 @@ const Home: React.FC = () => {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search by product name, brand, or barcode..."
+                  placeholder={t('home.searchModal.placeholder')}
                   className="w-full px-4 py-3 pl-12 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white/50"
                   autoFocus
                 />
@@ -319,9 +321,9 @@ const Home: React.FC = () => {
                   <svg className="w-20 h-20 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Start Searching</h3>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('home.searchModal.startTitle')}</h3>
                   <p className="text-gray-500">
-                    Type a product name, brand, or barcode to find products
+                    {t('home.searchModal.startDesc')}
                   </p>
                 </div>
               ) : isSearching ? (
@@ -331,7 +333,7 @@ const Home: React.FC = () => {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  <p className="mt-4 text-gray-500">Searching...</p>
+                  <p className="mt-4 text-gray-500">{t('home.searchModal.searching')}</p>
                 </div>
               ) : searchResults.length === 0 ? (
                 // No Results State
@@ -339,9 +341,9 @@ const Home: React.FC = () => {
                   <svg className="w-20 h-20 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No Products Found</h3>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('home.searchModal.noResultsTitle')}</h3>
                   <p className="text-gray-500 mb-4">
-                    We couldn't find any products matching "{searchQuery}"
+                    {t('home.searchModal.noResultsDesc', { query: searchQuery })}
                   </p>
                   <button
                     onClick={() => navigate('/products/barcode')}
@@ -350,14 +352,14 @@ const Home: React.FC = () => {
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                     </svg>
-                    Add New Product
+                    {t('home.searchModal.addNewProduct')}
                   </button>
                 </div>
               ) : (
                 // Search Results Grid
                 <div>
                   <p className="text-sm text-gray-600 mb-4">
-                    Found {searchResults.length} product{searchResults.length !== 1 ? 's' : ''}
+                    {t('home.searchModal.foundCount', { count: searchResults.length })}
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {searchResults.map((product) => (
@@ -400,8 +402,8 @@ const Home: React.FC = () => {
                     </svg>
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold">Trust Score System</h2>
-                    <p className="text-white/80 text-sm">How to earn and maintain your reputation</p>
+                    <h2 className="text-2xl font-bold">{t('home.trustScoreModal.title')}</h2>
+                    <p className="text-white/80 text-sm">{t('home.trustScoreModal.subtitle')}</p>
                   </div>
                 </div>
                 <button
@@ -423,7 +425,7 @@ const Home: React.FC = () => {
                   <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
-                  How to Earn Trust Points
+                  {t('home.trustScoreModal.earnPointsTitle')}
                 </h3>
                 <div className="space-y-3">
                   <div className="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
@@ -431,8 +433,8 @@ const Home: React.FC = () => {
                       <span className="text-lg font-bold text-green-600">+5</span>
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900">Add a Product</p>
-                      <p className="text-sm text-gray-600">Contribute by adding new products to our database</p>
+                      <p className="font-semibold text-gray-900">{t('home.trustScoreModal.earnProduct')}</p>
+                      <p className="text-sm text-gray-600">{t('home.trustScoreModal.earnProductDesc')}</p>
                     </div>
                   </div>
 
@@ -441,8 +443,8 @@ const Home: React.FC = () => {
                       <span className="text-lg font-bold text-green-600">+3</span>
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900">Submit a Price</p>
-                      <p className="text-sm text-gray-600">Help others by adding current prices from stores</p>
+                      <p className="font-semibold text-gray-900">{t('home.trustScoreModal.earnPrice')}</p>
+                      <p className="text-sm text-gray-600">{t('home.trustScoreModal.earnPriceDesc')}</p>
                     </div>
                   </div>
 
@@ -451,8 +453,8 @@ const Home: React.FC = () => {
                       <span className="text-lg font-bold text-green-600">+1</span>
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900">Vote on Prices</p>
-                      <p className="text-sm text-gray-600">Verify accuracy of prices submitted by others (positive or negative)</p>
+                      <p className="font-semibold text-gray-900">{t('home.trustScoreModal.earnVote')}</p>
+                      <p className="text-sm text-gray-600">{t('home.trustScoreModal.earnVoteDesc')}</p>
                     </div>
                   </div>
                 </div>
@@ -464,7 +466,7 @@ const Home: React.FC = () => {
                   <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
-                  Penalties for Inaccurate Data
+                  {t('home.trustScoreModal.penaltiesTitle')}
                 </h3>
                 <div className="space-y-3">
                   <div className="flex items-start gap-3 p-3 bg-red-50 rounded-lg border-l-4 border-red-500">
@@ -472,8 +474,8 @@ const Home: React.FC = () => {
                       <span className="text-lg font-bold text-red-600">-20</span>
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900">Rejected Price by Admin</p>
-                      <p className="text-sm text-gray-600">If your price receives 3+ negative votes and admin confirms it's wrong</p>
+                      <p className="font-semibold text-gray-900">{t('home.trustScoreModal.penaltyRejected')}</p>
+                      <p className="text-sm text-gray-600">{t('home.trustScoreModal.penaltyRejectedDesc')}</p>
                     </div>
                   </div>
                 </div>
@@ -485,16 +487,16 @@ const Home: React.FC = () => {
                   <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                   </svg>
-                  Trust Levels & Benefits
+                  {t('home.trustScoreModal.trustLevelsTitle')}
                 </h3>
                 <div className="space-y-3">
                   <div className="flex items-start gap-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
                     <div className="text-2xl">🥉</div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-1">
-                        <p className="font-semibold text-gray-900">Bronze (0-49 points)</p>
+                        <p className="font-semibold text-gray-900">{t('home.trustScoreModal.bronzeTitle')}</p>
                       </div>
-                      <p className="text-sm text-gray-600">Your submissions require admin approval</p>
+                      <p className="text-sm text-gray-600">{t('home.trustScoreModal.bronzeDesc')}</p>
                     </div>
                   </div>
 
@@ -502,9 +504,9 @@ const Home: React.FC = () => {
                     <div className="text-2xl">🥈</div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-1">
-                        <p className="font-semibold text-gray-900">Silver (50-99 points)</p>
+                        <p className="font-semibold text-gray-900">{t('home.trustScoreModal.silverTitle')}</p>
                       </div>
-                      <p className="text-sm text-gray-600">Your prices are auto-approved!</p>
+                      <p className="text-sm text-gray-600">{t('home.trustScoreModal.silverDesc')}</p>
                     </div>
                   </div>
 
@@ -512,9 +514,9 @@ const Home: React.FC = () => {
                     <div className="text-2xl">🥇</div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-1">
-                        <p className="font-semibold text-gray-900">Gold (100+ points)</p>
+                        <p className="font-semibold text-gray-900">{t('home.trustScoreModal.goldTitle')}</p>
                       </div>
-                      <p className="text-sm text-gray-600">Both products and prices are auto-approved! Maximum trust.</p>
+                      <p className="text-sm text-gray-600">{t('home.trustScoreModal.goldDesc')}</p>
                     </div>
                   </div>
                 </div>
@@ -527,12 +529,12 @@ const Home: React.FC = () => {
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                   </svg>
                   <div>
-                    <p className="font-semibold text-blue-900 mb-1">Pro Tips</p>
+                    <p className="font-semibold text-blue-900 mb-1">{t('home.trustScoreModal.proTipsTitle')}</p>
                     <ul className="text-sm text-blue-800 space-y-1">
-                      <li>• Always double-check prices before submitting</li>
-                      <li>• Vote honestly on prices to help the community</li>
-                      <li>• Reach Silver level to get auto-approved prices</li>
-                      <li>• Quality over quantity - accurate data builds trust</li>
+                      <li>• {t('home.trustScoreModal.tip1')}</li>
+                      <li>• {t('home.trustScoreModal.tip2')}</li>
+                      <li>• {t('home.trustScoreModal.tip3')}</li>
+                      <li>• {t('home.trustScoreModal.tip4')}</li>
                     </ul>
                   </div>
                 </div>
@@ -545,7 +547,7 @@ const Home: React.FC = () => {
                 onClick={() => setShowTrustInfoModal(false)}
                 className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-6 rounded-lg transition-all"
               >
-                Got it!
+                {t('buttons.gotIt')}
               </button>
             </div>
           </div>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import authService from '../services/authService';
 import { getErrorMessage, getFieldErrors } from '../services/api';
@@ -18,6 +19,7 @@ interface PasswordFormData {
 }
 
 const EditProfile = () => {
+  const { t } = useTranslation('profile');
   const navigate = useNavigate();
   const { user, updateUser } = useAuth();
 
@@ -73,7 +75,7 @@ const EditProfile = () => {
     try {
       const updatedUser = await authService.updateProfile(profileData);
       updateUser(updatedUser);
-      setProfileSuccess('Profile updated successfully!');
+      setProfileSuccess(t('personalInfo.successMessage'));
     } catch (err) {
       const apiFieldErrors = getFieldErrors(err);
       if (Object.keys(apiFieldErrors).length > 0) {
@@ -95,7 +97,7 @@ const EditProfile = () => {
 
     // Client-side validation
     if (passwordData.new_password !== passwordData.new_password_confirm) {
-      setPasswordFieldErrors({ new_password_confirm: 'Passwords do not match' });
+      setPasswordFieldErrors({ new_password_confirm: t('changePassword.passwordsDoNotMatch') });
       setIsChangingPassword(false);
       return;
     }
@@ -137,16 +139,16 @@ const EditProfile = () => {
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            Back
+            {t('back')}
           </button>
-          <h1 className="text-3xl font-bold text-gray-900">Edit Profile</h1>
-          <p className="text-gray-600 mt-2">Update your personal information and settings</p>
+          <h1 className="text-3xl font-bold text-gray-900">{t('editProfile.title')}</h1>
+          <p className="text-gray-600 mt-2">{t('editProfile.subtitle')}</p>
         </div>
 
         <div className="space-y-6">
           {/* Personal Information Form */}
           <div className="bg-white rounded-2xl shadow-lg p-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">Personal Information</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-6">{t('personalInfo.title')}</h2>
 
             <form onSubmit={handleProfileSubmit} className="space-y-6">
               {/* Success Message */}
@@ -172,7 +174,7 @@ const EditProfile = () => {
               {/* Email (Read-only) */}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                  Email (cannot be changed)
+                  {t('personalInfo.email')}
                 </label>
                 <input
                   id="email"
@@ -186,7 +188,7 @@ const EditProfile = () => {
               {/* First Name */}
               <div>
                 <label htmlFor="first_name" className="block text-sm font-medium text-gray-700 mb-2">
-                  First Name
+                  {t('personalInfo.firstName')}
                 </label>
                 <input
                   id="first_name"
@@ -194,7 +196,7 @@ const EditProfile = () => {
                   type="text"
                   value={profileData.first_name}
                   onChange={handleProfileChange}
-                  placeholder="Enter first name"
+                  placeholder={t('personalInfo.firstNamePlaceholder')}
                   className={`w-full px-4 py-3 border ${
                     profileFieldErrors.first_name ? 'border-red-500' : 'border-gray-300'
                   } rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all`}
@@ -208,7 +210,7 @@ const EditProfile = () => {
               {/* Last Name */}
               <div>
                 <label htmlFor="last_name" className="block text-sm font-medium text-gray-700 mb-2">
-                  Last Name
+                  {t('personalInfo.lastName')}
                 </label>
                 <input
                   id="last_name"
@@ -216,7 +218,7 @@ const EditProfile = () => {
                   type="text"
                   value={profileData.last_name}
                   onChange={handleProfileChange}
-                  placeholder="Enter last name"
+                  placeholder={t('personalInfo.lastNamePlaceholder')}
                   className={`w-full px-4 py-3 border ${
                     profileFieldErrors.last_name ? 'border-red-500' : 'border-gray-300'
                   } rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all`}
@@ -229,20 +231,41 @@ const EditProfile = () => {
 
               {/* Preferred Currency */}
               <div>
-                <label htmlFor="preferred_currency" className="block text-sm font-medium text-gray-700 mb-2">
-                  Preferred Currency
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t('personalInfo.preferredCurrency')}
                 </label>
-                <select
-                  id="preferred_currency"
-                  name="preferred_currency"
-                  value={profileData.preferred_currency}
-                  onChange={handleProfileChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white"
-                  disabled={isUpdatingProfile}
-                >
-                  <option value="BGN">BGN (Bulgarian Lev)</option>
-                  <option value="EUR">EUR (Euro)</option>
-                </select>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setProfileData(prev => ({ ...prev, preferred_currency: 'BGN' }));
+                      setProfileSuccess('');
+                    }}
+                    disabled={isUpdatingProfile}
+                    className={`flex-1 px-4 py-3 rounded-lg font-medium transition-all ${
+                      profileData.preferred_currency === 'BGN'
+                        ? 'bg-primary text-white shadow-md'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  >
+                    {t('personalInfo.currencyBGN')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setProfileData(prev => ({ ...prev, preferred_currency: 'EUR' }));
+                      setProfileSuccess('');
+                    }}
+                    disabled={isUpdatingProfile}
+                    className={`flex-1 px-4 py-3 rounded-lg font-medium transition-all ${
+                      profileData.preferred_currency === 'EUR'
+                        ? 'bg-primary text-white shadow-md'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  >
+                    {t('personalInfo.currencyEUR')}
+                  </button>
+                </div>
               </div>
 
               {/* Submit Button */}
@@ -257,10 +280,10 @@ const EditProfile = () => {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Updating...
+                    {t('personalInfo.updating')}
                   </>
                 ) : (
-                  'Save Changes'
+                  t('personalInfo.saveChanges')
                 )}
               </button>
             </form>
@@ -268,7 +291,7 @@ const EditProfile = () => {
 
           {/* Change Password Form */}
           <div className="bg-white rounded-2xl shadow-lg p-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">Change Password</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-6">{t('changePassword.title')}</h2>
 
             <form onSubmit={handlePasswordSubmit} className="space-y-6">
               {/* Success Message */}
@@ -294,7 +317,7 @@ const EditProfile = () => {
               {/* Old Password */}
               <div>
                 <label htmlFor="old_password" className="block text-sm font-medium text-gray-700 mb-2">
-                  Current Password
+                  {t('changePassword.currentPassword')}
                 </label>
                 <input
                   id="old_password"
@@ -302,7 +325,7 @@ const EditProfile = () => {
                   type="password"
                   value={passwordData.old_password}
                   onChange={handlePasswordChange}
-                  placeholder="Enter current password"
+                  placeholder={t('changePassword.currentPasswordPlaceholder')}
                   className={`w-full px-4 py-3 border ${
                     passwordFieldErrors.old_password ? 'border-red-500' : 'border-gray-300'
                   } rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all`}
@@ -317,7 +340,7 @@ const EditProfile = () => {
               {/* New Password */}
               <div>
                 <label htmlFor="new_password" className="block text-sm font-medium text-gray-700 mb-2">
-                  New Password
+                  {t('changePassword.newPassword')}
                 </label>
                 <input
                   id="new_password"
@@ -325,7 +348,7 @@ const EditProfile = () => {
                   type="password"
                   value={passwordData.new_password}
                   onChange={handlePasswordChange}
-                  placeholder="Enter new password"
+                  placeholder={t('changePassword.newPasswordPlaceholder')}
                   className={`w-full px-4 py-3 border ${
                     passwordFieldErrors.new_password ? 'border-red-500' : 'border-gray-300'
                   } rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all`}
@@ -340,7 +363,7 @@ const EditProfile = () => {
               {/* Confirm New Password */}
               <div>
                 <label htmlFor="new_password_confirm" className="block text-sm font-medium text-gray-700 mb-2">
-                  Confirm New Password
+                  {t('changePassword.confirmPassword')}
                 </label>
                 <input
                   id="new_password_confirm"
@@ -348,7 +371,7 @@ const EditProfile = () => {
                   type="password"
                   value={passwordData.new_password_confirm}
                   onChange={handlePasswordChange}
-                  placeholder="Confirm new password"
+                  placeholder={t('changePassword.confirmPasswordPlaceholder')}
                   className={`w-full px-4 py-3 border ${
                     passwordFieldErrors.new_password_confirm ? 'border-red-500' : 'border-gray-300'
                   } rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all`}
@@ -372,10 +395,10 @@ const EditProfile = () => {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Changing Password...
+                    {t('changePassword.changingPassword')}
                   </>
                 ) : (
-                  'Change Password'
+                  t('changePassword.submitButton')
                 )}
               </button>
             </form>

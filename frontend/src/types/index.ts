@@ -6,6 +6,7 @@ export interface User {
   first_name: string;
   last_name: string;
   preferred_currency: 'BGN' | 'EUR';
+  preferred_language: 'en' | 'bg';
   trust_score: number;
   trust_level: 'Bronze' | 'Silver' | 'Gold';
   total_products_added: number;

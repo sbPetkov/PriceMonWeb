@@ -1,0 +1,22 @@
+{
+  "main": {
+    "home": "Home",
+    "scan": "Scan",
+    "lists": "Lists",
+    "profile": "Profile"
+  },
+  "menu": {
+    "about": "About",
+    "howItWorks": "How It Works",
+    "contact": "Contact Us",
+    "login": "Login",
+    "signup": "Sign Up",
+    "logout": "Logout",
+    "settings": "Settings"
+  },
+  "footer": {
+    "rights": "All rights reserved",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service"
+  }
+}

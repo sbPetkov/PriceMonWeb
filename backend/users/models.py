@@ -74,6 +74,13 @@ class User(AbstractUser):
         help_text="User's preferred currency for displaying prices"
     )
 
+    preferred_language = models.CharField(
+        max_length=5,
+        choices=[('en', 'English'), ('bg', 'Bulgarian')],
+        default='en',
+        help_text="User's preferred language for the interface"
+    )
+
     # Gamification and trust system
     trust_score = models.IntegerField(
         default=0,

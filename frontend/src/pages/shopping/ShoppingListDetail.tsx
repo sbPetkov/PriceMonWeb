@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   getShoppingListById,
   addItem,
@@ -24,6 +25,7 @@ import type {
 const ShoppingListDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { t } = useTranslation('shopping');
 
   const [list, setList] = useState<ShoppingList | null>(null);
   const [stores, setStores] = useState<Store[]>([]);
@@ -416,13 +418,13 @@ const ShoppingListDetail = () => {
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">List Not Found</h2>
-          <p className="text-gray-600 mb-6">{error || 'The list you are looking for does not exist.'}</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('listNotFound')}</h2>
+          <p className="text-gray-600 mb-6">{error || t('listNotFoundDesc')}</p>
           <button
             onClick={() => navigate('/shopping-lists')}
             className="bg-primary hover:bg-primary/90 text-white font-semibold py-2 px-6 rounded-lg transition-all"
           >
-            Back to Lists
+            {t('backToLists')}
           </button>
         </div>
       </div>
@@ -443,14 +445,14 @@ const ShoppingListDetail = () => {
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            Back to Lists
+            {t('backToLists')}
           </button>
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{list.name}</h1>
               <p className="text-gray-500 mt-1">
-                {list.item_count} {list.item_count === 1 ? 'item' : 'items'} • {list.checked_count} completed
+                {t('itemsCount', { count: list.item_count })} • {list.checked_count} {t('completedText')}
               </p>
             </div>
             <div className="flex gap-2 flex-wrap">
@@ -461,7 +463,7 @@ const ShoppingListDetail = () => {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
-                Members ({list.members.length})
+                {t('membersButton', { count: list.members.length })}
               </button>
               <button
                 onClick={() => setShowComparison(true)}
@@ -470,7 +472,7 @@ const ShoppingListDetail = () => {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
-                Compare Stores
+                {t('compareStoresButton')}
               </button>
               <button
                 onClick={() => setShowAddModal(true)}
@@ -479,7 +481,7 @@ const ShoppingListDetail = () => {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
-                Add Item
+                {t('addItemButton')}
               </button>
             </div>
           </div>
@@ -574,7 +576,7 @@ const ShoppingListDetail = () => {
       {showAddModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl max-w-2xl w-full p-8 max-h-[90vh] overflow-y-auto">
-            <h3 className="text-2xl font-bold text-gray-900 mb-6">Add Item</h3>
+            <h3 className="text-2xl font-bold text-gray-900 mb-6">{t('addItemModal.title')}</h3>
 
             {/* Mode Toggle */}
             <div className="flex gap-2 mb-6">
@@ -586,7 +588,7 @@ const ShoppingListDetail = () => {
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
               >
-                From Products
+                {t('addItemModal.fromProducts')}
               </button>
               <button
                 onClick={() => setAddMode('custom')}
@@ -596,7 +598,7 @@ const ShoppingListDetail = () => {
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
               >
-                Custom Item
+                {t('addItemModal.customItem')}
               </button>
             </div>
 
@@ -606,13 +608,13 @@ const ShoppingListDetail = () => {
                   {/* Product Search */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Search Products
+                      {t('addItemModal.searchLabel')}
                     </label>
                     <input
                       type="text"
                       value={productSearch}
                       onChange={(e) => handleSearch(e.target.value)}
-                      placeholder="Search by name or barcode..."
+                      placeholder={t('addItemModal.searchPlaceholder')}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     />
                   </div>
@@ -622,7 +624,7 @@ const ShoppingListDetail = () => {
                     <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                       <div className="flex items-start justify-between">
                         <div>
-                          <p className="text-xs text-green-600 font-medium mb-1">✓ Selected Product</p>
+                          <p className="text-xs text-green-600 font-medium mb-1">{t('addItemModal.selectedProduct')}</p>
                           <h4 className="font-medium text-gray-900">{selectedProduct.name}</h4>
                           <p className="text-sm text-gray-500">{selectedProduct.brand}</p>
                         </div>
@@ -641,7 +643,7 @@ const ShoppingListDetail = () => {
                   {/* Search Results */}
                   {isSearching ? (
                     <div className="text-center py-4">
-                      <p className="text-gray-500">Searching...</p>
+                      <p className="text-gray-500">{t('addItemModal.searching')}</p>
                     </div>
                   ) : searchResults.length > 0 ? (
                     <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-lg">
@@ -656,26 +658,26 @@ const ShoppingListDetail = () => {
                           <h4 className="font-medium text-gray-900">{product.name}</h4>
                           <p className="text-sm text-gray-500">{product.brand}</p>
                           {selectedProduct?.id === product.id && (
-                            <p className="text-xs text-primary mt-1 font-medium">✓ Selected</p>
+                            <p className="text-xs text-primary mt-1 font-medium">{t('addItemModal.selected')}</p>
                           )}
                         </div>
                       ))}
                     </div>
                   ) : productSearch && (
-                    <p className="text-sm text-gray-500 text-center py-4">No products found</p>
+                    <p className="text-sm text-gray-500 text-center py-4">{t('addItemModal.noProducts')}</p>
                   )}
                 </>
               ) : (
                 /* Custom Item Input */
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Item Name
+                    {t('addItemModal.itemNameLabel')}
                   </label>
                   <input
                     type="text"
                     value={customItemName}
                     onChange={(e) => setCustomItemName(e.target.value)}
-                    placeholder="e.g., Milk, Bread, Eggs..."
+                    placeholder={t('addItemModal.itemNamePlaceholder')}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                   />
                 </div>
@@ -684,14 +686,14 @@ const ShoppingListDetail = () => {
               {/* Quantity */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Quantity
+                  {t('addItemModal.quantityLabel')}
                 </label>
                 <input
                   type="number"
                   min="1"
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value === '' ? '' : parseInt(e.target.value))}
-                  placeholder="Enter quantity"
+                  placeholder={t('addItemModal.quantityPlaceholder')}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
               </div>
@@ -707,14 +709,14 @@ const ShoppingListDetail = () => {
                   className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 rounded-lg transition-all"
                   disabled={isAdding}
                 >
-                  Cancel
+                  {t('cancel')}
                 </button>
                 <button
                   onClick={handleAddItem}
                   disabled={isAdding}
                   className="flex-1 bg-primary hover:bg-primary/90 text-white font-semibold py-3 rounded-lg transition-all disabled:opacity-50"
                 >
-                  {isAdding ? 'Adding...' : 'Add Item'}
+                  {isAdding ? t('addItemModal.adding') : t('addItemModal.addItem')}
                 </button>
               </div>
             </div>
@@ -727,7 +729,7 @@ const ShoppingListDetail = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl max-w-6xl w-full p-8 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-gray-900">Compare Stores</h3>
+              <h3 className="text-2xl font-bold text-gray-900">{t('compareStores.title')}</h3>
               <button
                 onClick={() => {
                   setShowComparison(false);
@@ -746,13 +748,13 @@ const ShoppingListDetail = () => {
 
             {!comparison ? (
               <>
-                <p className="text-gray-600 mb-4">Select 2-3 stores to compare prices:</p>
+                <p className="text-gray-600 mb-4">{t('compareStores.selectPrompt')}</p>
 
                 {/* Selected stores summary */}
                 {selectedStores.length > 0 && (
                   <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                     <p className="text-sm font-medium text-blue-900 mb-2">
-                      Selected Stores ({selectedStores.length}/3):
+                      {t('compareStores.selectedStores', { count: selectedStores.length })}
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {selectedStores.map(store => (
@@ -773,7 +775,7 @@ const ShoppingListDetail = () => {
                 {/* Popular chain stores suggestions */}
                 {!storeSearch && chainStores.length > 0 && (
                   <div className="mb-4">
-                    <p className="text-sm font-medium text-gray-700 mb-2">Popular Chains:</p>
+                    <p className="text-sm font-medium text-gray-700 mb-2">{t('compareStores.popularChains')}</p>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                       {chainStores.slice(0, 6).map((store) => (
                         <button
@@ -801,7 +803,7 @@ const ShoppingListDetail = () => {
                       type="text"
                       value={storeSearch}
                       onChange={(e) => handleStoreSearch(e.target.value)}
-                      placeholder="Search stores by name, chain, or city..."
+                      placeholder={t('compareStores.searchPlaceholder')}
                       className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     />
                     <svg className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -822,7 +824,7 @@ const ShoppingListDetail = () => {
                 {storeSearch && storeSearchResults.length > 0 && (
                   <div className="mb-6">
                     <p className="text-sm font-medium text-gray-700 mb-2">
-                      Search Results ({storeSearchResults.length}):
+                      {t('compareStores.searchResults', { count: storeSearchResults.length })}
                     </p>
                     <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-lg">
                       {storeSearchResults.map((store) => (
@@ -866,8 +868,8 @@ const ShoppingListDetail = () => {
                     <svg className="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
-                    <p>No stores found for "{storeSearch}"</p>
-                    <p className="text-sm mt-1">Try different keywords</p>
+                    <p>{t('compareStores.noStoresFound', { query: storeSearch })}</p>
+                    <p className="text-sm mt-1">{t('compareStores.tryDifferent')}</p>
                   </div>
                 )}
 
@@ -932,18 +934,18 @@ const ShoppingListDetail = () => {
                         {/* Percentage comparison */}
                         {store.isExpensive ? (
                           <div className="bg-red-100 text-red-700 text-xs font-medium px-2 py-1 rounded">
-                            Most Expensive
+                            {t('mostExpensive')}
                           </div>
                         ) : store.savingsPercent > 0 ? (
                           <div className="bg-green-100 text-green-700 text-xs font-medium px-2 py-1 rounded">
-                            {store.savingsPercent.toFixed(1)}% cheaper • Save {store.savingsAmount.toFixed(2)} €
+                            {t('cheaperBy', { percent: store.savingsPercent.toFixed(1), amount: store.savingsAmount.toFixed(2) })}
                           </div>
                         ) : null}
 
                         <div className="flex items-center gap-2 text-xs text-gray-600 mt-2">
-                          <span>{store.items_with_prices}/{comparison.total_items} items</span>
+                          <span>{t('itemsWithPrices', { available: store.items_with_prices, total: comparison.total_items })}</span>
                           <span>•</span>
-                          <span>{store.coverage_percent}% coverage</span>
+                          <span>{t('coveragePercent', { percent: store.coverage_percent })}</span>
                         </div>
                       </div>
                     ))}
@@ -1117,7 +1119,7 @@ const ShoppingListDetail = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl max-w-2xl w-full p-8 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-gray-900">List Members</h3>
+              <h3 className="text-2xl font-bold text-gray-900">{t('membersModal.title')}</h3>
               <button
                 onClick={() => setShowMembersModal(false)}
                 className="text-gray-400 hover:text-gray-600"
@@ -1130,7 +1132,7 @@ const ShoppingListDetail = () => {
 
             {/* Owner */}
             <div className="mb-6">
-              <h4 className="text-sm font-medium text-gray-500 mb-2">Owner</h4>
+              <h4 className="text-sm font-medium text-gray-500 mb-2">{t('membersModal.owner')}</h4>
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex items-center justify-between">
                 <div>
                   <p className="font-medium text-gray-900">
@@ -1139,7 +1141,7 @@ const ShoppingListDetail = () => {
                   <p className="text-sm text-gray-500">{list.owner.email}</p>
                 </div>
                 <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full font-medium">
-                  Owner
+                  {t('membersModal.owner')}
                 </span>
               </div>
             </div>
@@ -1147,7 +1149,7 @@ const ShoppingListDetail = () => {
             {/* Members */}
             <div className="mb-6">
               <div className="flex items-center justify-between mb-2">
-                <h4 className="text-sm font-medium text-gray-500">Shared With</h4>
+                <h4 className="text-sm font-medium text-gray-500">{t('membersModal.sharedWith')}</h4>
                 <button
                   onClick={() => {
                     setShowMembersModal(false);
@@ -1158,7 +1160,7 @@ const ShoppingListDetail = () => {
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
-                  Add Member
+                  {t('membersModal.addMemberButton')}
                 </button>
               </div>
 
@@ -1167,8 +1169,8 @@ const ShoppingListDetail = () => {
                   <svg className="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
-                  <p>No members yet</p>
-                  <p className="text-sm mt-1">Add members to collaborate on this list</p>
+                  <p>{t('membersModal.noMembers')}</p>
+                  <p className="text-sm mt-1">{t('membersModal.noMembersDesc')}</p>
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -1201,7 +1203,7 @@ const ShoppingListDetail = () => {
               onClick={() => setShowMembersModal(false)}
               className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 rounded-lg transition-all"
             >
-              Close
+              {t('membersModal.close')}
             </button>
           </div>
         </div>
@@ -1211,23 +1213,23 @@ const ShoppingListDetail = () => {
       {showAddMemberModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl max-w-md w-full p-8">
-            <h3 className="text-2xl font-bold text-gray-900 mb-6">Add Member</h3>
+            <h3 className="text-2xl font-bold text-gray-900 mb-6">{t('membersModal.addMemberTitle')}</h3>
 
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email Address
+                  {t('membersModal.emailLabel')}
                 </label>
                 <input
                   type="email"
                   value={memberEmail}
                   onChange={(e) => setMemberEmail(e.target.value)}
-                  placeholder="member@example.com"
+                  placeholder={t('membersModal.emailPlaceholder')}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                   autoFocus
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  The user must be registered with this email address
+                  {t('membersModal.emailHelper')}
                 </p>
               </div>
 
@@ -1240,14 +1242,14 @@ const ShoppingListDetail = () => {
                   className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 rounded-lg transition-all"
                   disabled={isAddingMember}
                 >
-                  Cancel
+                  {t('cancel')}
                 </button>
                 <button
                   onClick={handleAddMember}
                   disabled={isAddingMember || !memberEmail.trim()}
                   className="flex-1 bg-primary hover:bg-primary/90 text-white font-semibold py-3 rounded-lg transition-all disabled:opacity-50"
                 >
-                  {isAddingMember ? 'Adding...' : 'Add Member'}
+                  {isAddingMember ? t('membersModal.adding') : t('membersModal.addMember')}
                 </button>
               </div>
             </div>

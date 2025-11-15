@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import authService from '../services/authService';
 import { getErrorMessage } from '../services/api';
 import type { User, LoginRequest, RegisterRequest } from '../types';
+import i18n from '../i18n';
 
 interface AuthContextType {
   user: User | null;
@@ -33,6 +34,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (authService.isAuthenticated()) {
           const currentUser = await authService.getCurrentUser();
           setUser(currentUser);
+
+          // Sync language with user's preference
+          if (currentUser.preferred_language && currentUser.preferred_language !== i18n.language) {
+            await i18n.changeLanguage(currentUser.preferred_language);
+          }
         }
       } catch (err) {
         console.error('Failed to initialize auth:', err);
@@ -54,6 +60,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       const response = await authService.login(credentials);
       setUser(response.user);
+
+      // Sync language with user's preference on login
+      if (response.user.preferred_language && response.user.preferred_language !== i18n.language) {
+        await i18n.changeLanguage(response.user.preferred_language);
+      }
     } catch (err) {
       const errorMessage = getErrorMessage(err);
       setError(errorMessage);

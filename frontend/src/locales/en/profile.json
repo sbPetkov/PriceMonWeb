@@ -1,0 +1,33 @@
+{
+  "back": "Back",
+  "editProfile": {
+    "title": "Edit Profile",
+    "subtitle": "Update your personal information and settings"
+  },
+  "personalInfo": {
+    "title": "Personal Information",
+    "email": "Email (cannot be changed)",
+    "firstName": "First Name",
+    "firstNamePlaceholder": "Enter first name",
+    "lastName": "Last Name",
+    "lastNamePlaceholder": "Enter last name",
+    "preferredCurrency": "Preferred Currency",
+    "currencyBGN": "BGN (Bulgarian Lev)",
+    "currencyEUR": "EUR (Euro)",
+    "saveChanges": "Save Changes",
+    "updating": "Updating...",
+    "successMessage": "Profile updated successfully!"
+  },
+  "changePassword": {
+    "title": "Change Password",
+    "currentPassword": "Current Password",
+    "currentPasswordPlaceholder": "Enter current password",
+    "newPassword": "New Password",
+    "newPasswordPlaceholder": "Enter new password",
+    "confirmPassword": "Confirm New Password",
+    "confirmPasswordPlaceholder": "Confirm new password",
+    "submitButton": "Change Password",
+    "changingPassword": "Changing Password...",
+    "passwordsDoNotMatch": "Passwords do not match"
+  }
+}

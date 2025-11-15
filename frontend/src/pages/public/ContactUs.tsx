@@ -1,8 +1,11 @@
 import { useState, FormEvent } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import axios from 'axios';
+import PublicNavbar from '../../components/PublicNavbar';
 
 const ContactUs = () => {
+  const { t } = useTranslation('contact');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [subject, setSubject] = useState('');
@@ -42,7 +45,7 @@ const ContactUs = () => {
     } catch (error: any) {
       setSubmitStatus('error');
       const errorMsg =
-        error.response?.data?.error || error.message || 'Failed to send message. Please try again.';
+        error.response?.data?.error || error.message || t('errors.defaultError');
       setErrorMessage(errorMsg);
     } finally {
       setIsSubmitting(false);
@@ -51,12 +54,15 @@ const ContactUs = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Public Navigation */}
+      <PublicNavbar />
+
       {/* Header */}
       <div className="bg-gradient-to-r from-primary to-primary-600 py-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl font-bold text-white mb-4">Contact Us</h1>
+          <h1 className="text-4xl font-bold text-white mb-4">{t('header.title')}</h1>
           <p className="text-white/90 text-lg">
-            We'd love to hear from you! Send us a message and we'll get back to you soon.
+            {t('header.subtitle')}
           </p>
         </div>
       </div>
@@ -73,9 +79,9 @@ const ContactUs = () => {
                 </svg>
               </div>
               <div>
-                <h3 className="text-lg font-bold text-green-900 mb-1">Message Sent Successfully!</h3>
+                <h3 className="text-lg font-bold text-green-900 mb-1">{t('success.title')}</h3>
                 <p className="text-green-800">
-                  Thank you for reaching out. We'll get back to you as soon as possible at the email address you provided.
+                  {t('success.message')}
                 </p>
               </div>
             </div>
@@ -85,13 +91,13 @@ const ContactUs = () => {
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Contact Form */}
           <div className="bg-white rounded-2xl shadow-lg p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Send us a Message</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">{t('form.title')}</h2>
 
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Name */}
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                  Your Name <span className="text-red-500">*</span>
+                  {t('form.nameLabel')} <span className="text-red-500">{t('form.required')}</span>
                 </label>
                 <input
                   type="text"
@@ -102,14 +108,14 @@ const ContactUs = () => {
                   maxLength={100}
                   disabled={isSubmitting}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
-                  placeholder="John Doe"
+                  placeholder={t('form.namePlaceholder')}
                 />
               </div>
 
               {/* Email */}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                  Your Email <span className="text-red-500">*</span>
+                  {t('form.emailLabel')} <span className="text-red-500">{t('form.required')}</span>
                 </label>
                 <input
                   type="email"
@@ -120,14 +126,14 @@ const ContactUs = () => {
                   maxLength={100}
                   disabled={isSubmitting}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
-                  placeholder="john@example.com"
+                  placeholder={t('form.emailPlaceholder')}
                 />
               </div>
 
               {/* Subject */}
               <div>
                 <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
-                  Subject <span className="text-red-500">*</span>
+                  {t('form.subjectLabel')} <span className="text-red-500">{t('form.required')}</span>
                 </label>
                 <input
                   type="text"
@@ -138,14 +144,14 @@ const ContactUs = () => {
                   maxLength={200}
                   disabled={isSubmitting}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
-                  placeholder="What's this about?"
+                  placeholder={t('form.subjectPlaceholder')}
                 />
               </div>
 
               {/* Message */}
               <div>
                 <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-                  Message <span className="text-red-500">*</span>
+                  {t('form.messageLabel')} <span className="text-red-500">{t('form.required')}</span>
                 </label>
                 <textarea
                   id="message"
@@ -157,10 +163,10 @@ const ContactUs = () => {
                   rows={6}
                   disabled={isSubmitting}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none disabled:bg-gray-100 disabled:cursor-not-allowed"
-                  placeholder="Tell us what's on your mind..."
+                  placeholder={t('form.messagePlaceholder')}
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  {message.length}/2000 characters (minimum 10)
+                  {t('form.characterCount', { count: message.length })}
                 </p>
               </div>
 
@@ -186,14 +192,14 @@ const ContactUs = () => {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Sending...
+                    {t('form.sending')}
                   </>
                 ) : (
                   <>
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                     </svg>
-                    Send Message
+                    {t('form.sendButton')}
                   </>
                 )}
               </button>
@@ -204,7 +210,7 @@ const ContactUs = () => {
           <div className="space-y-6">
             {/* Contact Info */}
             <div className="bg-white rounded-2xl shadow-lg p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Get in Touch</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">{t('info.title')}</h2>
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -213,7 +219,7 @@ const ContactUs = () => {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-900 mb-1">Email</h3>
+                    <h3 className="font-bold text-gray-900 mb-1">{t('info.email')}</h3>
                     <a href="mailto:svilen.petkov@price-mon.com" className="text-primary hover:text-primary-600 transition-colors">
                       svilen.petkov@price-mon.com
                     </a>
@@ -227,14 +233,14 @@ const ContactUs = () => {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-900 mb-1">Response Time</h3>
-                    <p className="text-gray-600">Usually within 24-48 hours</p>
+                    <h3 className="font-bold text-gray-900 mb-1">{t('info.responseTime')}</h3>
+                    <p className="text-gray-600">{t('info.responseTimeValue')}</p>
                   </div>
                 </div>
 
                 {/* Social Media Placeholder */}
                 <div className="pt-6 border-t border-gray-200">
-                  <h3 className="font-bold text-gray-900 mb-3">Follow Us</h3>
+                  <h3 className="font-bold text-gray-900 mb-3">{t('info.followUs')}</h3>
                   <div className="flex gap-3">
                     {/* Placeholders for social links - to be added later */}
                     <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center opacity-50">
@@ -247,14 +253,14 @@ const ContactUs = () => {
                       <span className="text-xs">IN</span>
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">Social links coming soon!</p>
+                  <p className="text-xs text-gray-500 mt-2">{t('info.socialComingSoon')}</p>
                 </div>
               </div>
             </div>
 
             {/* FAQ Quick Links */}
             <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-2xl p-8 border-2 border-purple-100">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Quick Links</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">{t('quickLinks.title')}</h3>
               <div className="space-y-3">
                 <Link
                   to="/about"
@@ -263,7 +269,7 @@ const ContactUs = () => {
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  About PriceMon
+                  {t('quickLinks.about')}
                 </Link>
                 <Link
                   to="/how-it-works"
@@ -272,16 +278,16 @@ const ContactUs = () => {
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                   </svg>
-                  How It Works
+                  {t('quickLinks.howItWorks')}
                 </Link>
                 <Link
-                  to="/register"
+                  to="/signup"
                   className="flex items-center gap-2 text-primary hover:text-primary-600 font-medium transition-colors"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                   </svg>
-                  Create Account
+                  {t('quickLinks.createAccount')}
                 </Link>
               </div>
             </div>
@@ -297,13 +303,10 @@ const ContactUs = () => {
               </svg>
             </div>
             <h3 className="text-2xl font-bold text-gray-900 mb-2">
-              Love What We're Building?
+              {t('support.title')}
             </h3>
             <p className="text-gray-600 max-w-2xl mx-auto leading-relaxed">
-              This project is made with passion and runs completely free for everyone!
-              If you find it helpful and want to support its growth, a small contribution
-              would mean the world to us. Every coffee helps keep the servers running
-              and the features coming!
+              {t('support.description')}
             </p>
           </div>
 
@@ -316,7 +319,7 @@ const ContactUs = () => {
             >
               <img
                 src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=s.petkov&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff"
-                alt="Buy me a coffee"
+                alt={t('support.buyMeCoffee')}
                 className="h-12"
               />
             </a>
@@ -331,12 +334,12 @@ const ContactUs = () => {
                 <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd" />
               </svg>
-              Support via Revolut
+              {t('support.revolut')}
             </a>
           </div>
 
           <p className="text-center text-sm text-gray-500 mt-6">
-            Your support, no matter how small, makes a huge difference! Thank you for being awesome!
+            {t('support.thanks')}
           </p>
         </div>
       </div>

@@ -111,8 +111,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     """
     queryset = Product.objects.all()
     permission_classes = [IsAuthenticatedOrReadOnly]
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ['name', 'brand', 'barcode', 'description']
+    filter_backends = [filters.OrderingFilter]
     ordering_fields = ['name', 'brand', 'created_at']
     ordering = ['-created_at']
 
@@ -150,6 +149,30 @@ class ProductViewSet(viewsets.ModelViewSet):
         created_by_id = self.request.query_params.get('created_by', None)
         if created_by_id:
             queryset = queryset.filter(created_by_id=created_by_id)
+
+        # Custom search for reliable case-insensitive Cyrillic support
+        search = self.request.query_params.get('search', None)
+        if search:
+            # Filter in Python for reliable case-insensitive support
+            search_lower = search.lower()
+            all_products = list(queryset)
+
+            # Filter products where search matches anywhere in name, brand, barcode, or description
+            filtered_products = [
+                product for product in all_products
+                if search_lower in (product.name or '').lower() or
+                   search_lower in (product.brand or '').lower() or
+                   search_lower in (product.barcode or '').lower() or
+                   search_lower in (product.description or '').lower()
+            ]
+
+            # Get IDs of matching products
+            if filtered_products:
+                product_ids = [product.id for product in filtered_products]
+                queryset = queryset.filter(id__in=product_ids)
+            else:
+                # Return empty queryset if no matches
+                queryset = queryset.none()
 
         return queryset
 

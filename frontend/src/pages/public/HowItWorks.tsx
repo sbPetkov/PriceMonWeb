@@ -1,44 +1,43 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import PublicNavbar from '../../components/PublicNavbar';
 
 const HowItWorks = () => {
+  const { t } = useTranslation('howItWorks');
+
   const steps = [
     {
       number: 1,
-      title: 'Sign Up & Verify Your Email',
-      description:
-        'Create your free PriceMon account in seconds. After signing up, verify your email address to unlock all features. Email verification helps us maintain a trusted community and ensures you receive important notifications about price changes and updates.',
+      title: t('steps.step1.title'),
+      description: t('steps.step1.description'),
       image: 'step1-signup.jpg',
       color: 'from-blue-500 to-blue-600',
     },
     {
       number: 2,
-      title: 'Search for Products',
-      description:
-        'Use the powerful search feature to find any product you\'re interested in. Our database contains thousands of everyday items from groceries to household goods. Filter by category, store, or location to narrow down results. Can\'t find a product? You can add it yourself and help the community!',
+      title: t('steps.step2.title'),
+      description: t('steps.step2.description'),
       image: 'step2-search.jpg',
       color: 'from-green-500 to-green-600',
     },
     {
       number: 3,
-      title: 'Scan Products',
-      description:
-        'Submit price information in multiple ways for maximum convenience. Manually enter product prices, locations, and store details, or use your phone\'s camera to scan barcodes for instant product recognition. Our smart system validates submissions to ensure data accuracy and quality.',
+      title: t('steps.step3.title'),
+      description: t('steps.step3.description'),
       image: 'step3-scan.jpg',
       color: 'from-purple-500 to-purple-600',
     },
     {
       number: 4,
-      title: 'View Product Details',
-      description:
-        'Explore comprehensive pricing information for each product. See the current average price across all stores, identify the lowest available price, and view which stores carry the item. The interactive price history graph shows trends over time, helping you spot the best time to buy and understand seasonal variations.',
+      title: t('steps.step4.title'),
+      description: t('steps.step4.description'),
       image: 'step4-details.jpg',
       color: 'from-orange-500 to-orange-600',
     },
     {
       number: 5,
-      title: 'Create Shopping Lists',
-      description:
-        'Organize your purchases with smart shopping lists. Add items you need and share lists with family members or roommates so everyone can contribute. Our comparison feature analyzes your entire list and shows you which stores offer the best overall value, helping you save time and money on every shopping trip.',
+      title: t('steps.step5.title'),
+      description: t('steps.step5.description'),
       image: 'step5-list.jpg',
       color: 'from-pink-500 to-pink-600',
     },
@@ -46,12 +45,15 @@ const HowItWorks = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Public Navigation */}
+      <PublicNavbar />
+
       {/* Header */}
       <div className="bg-gradient-to-r from-primary to-primary-600 py-16">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl font-bold text-white mb-4">How PriceMon Works</h1>
+          <h1 className="text-4xl font-bold text-white mb-4">{t('header.title')}</h1>
           <p className="text-white/90 text-lg">
-            Your step-by-step guide to smarter shopping
+            {t('header.subtitle')}
           </p>
         </div>
       </div>
@@ -115,7 +117,7 @@ const HowItWorks = () => {
         {/* Tips Section */}
         <div className="mt-16 bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-8 sm:p-12 border-2 border-blue-100">
           <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-            Pro Tips for Better Results
+            {t('tips.title')}
           </h2>
           <div className="grid md:grid-cols-3 gap-6">
             <div className="bg-white rounded-xl p-6 shadow-md">
@@ -135,11 +137,10 @@ const HowItWorks = () => {
                 </svg>
               </div>
               <h3 className="font-bold text-gray-900 mb-2">
-                Submit Accurate Prices
+                {t('tips.tip1.title')}
               </h3>
               <p className="text-gray-600 text-sm">
-                Always double-check prices before submitting. Accurate data
-                helps everyone and increases your trust score!
+                {t('tips.tip1.description')}
               </p>
             </div>
 
@@ -160,11 +161,10 @@ const HowItWorks = () => {
                 </svg>
               </div>
               <h3 className="font-bold text-gray-900 mb-2">
-                Build Your Trust Score
+                {t('tips.tip2.title')}
               </h3>
               <p className="text-gray-600 text-sm">
-                Regular contributions and quality submissions earn you trust
-                points. Reach 100+ to auto-approve your products!
+                {t('tips.tip2.description')}
               </p>
             </div>
 
@@ -185,11 +185,10 @@ const HowItWorks = () => {
                 </svg>
               </div>
               <h3 className="font-bold text-gray-900 mb-2">
-                Share with Friends
+                {t('tips.tip3.title')}
               </h3>
               <p className="text-gray-600 text-sm">
-                Invite friends and family to join. Shared lists make shopping
-                easier and help build a better database!
+                {t('tips.tip3.description')}
               </p>
             </div>
           </div>
@@ -198,24 +197,23 @@ const HowItWorks = () => {
         {/* CTA Section */}
         <div className="mt-12 text-center bg-white rounded-2xl shadow-lg p-8 sm:p-12">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Ready to Get Started?
+            {t('cta.title')}
           </h2>
           <p className="text-gray-600 text-lg mb-8 max-w-2xl mx-auto">
-            Join thousands of smart shoppers who are saving money every day with
-            PriceMon. It's completely free!
+            {t('cta.description')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/register"
               className="px-8 py-4 bg-gradient-to-r from-primary to-primary-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all text-lg"
             >
-              Create Free Account
+              {t('cta.createAccount')}
             </Link>
             <Link
               to="/about"
               className="px-8 py-4 bg-white border-2 border-primary text-primary font-semibold rounded-lg hover:bg-primary-50 transition-all text-lg"
             >
-              Learn More About Us
+              {t('cta.learnMore')}
             </Link>
           </div>
         </div>

@@ -1,0 +1,49 @@
+{
+  "header": {
+    "title": "How PriceMon Works",
+    "subtitle": "Your step-by-step guide to smarter shopping"
+  },
+  "steps": {
+    "step1": {
+      "title": "Sign Up & Verify Your Email",
+      "description": "Create your free PriceMon account in seconds. After signing up, verify your email address to unlock all features. Email verification helps us maintain a trusted community and ensures you receive important notifications about price changes and updates."
+    },
+    "step2": {
+      "title": "Search for Products",
+      "description": "Use the powerful search feature to find any product you're interested in. Our database contains thousands of everyday items from groceries to household goods. Filter by category, store, or location to narrow down results. Can't find a product? You can add it yourself and help the community!"
+    },
+    "step3": {
+      "title": "Scan Products",
+      "description": "Submit price information in multiple ways for maximum convenience. Manually enter product prices, locations, and store details, or use your phone's camera to scan barcodes for instant product recognition. Our smart system validates submissions to ensure data accuracy and quality."
+    },
+    "step4": {
+      "title": "View Product Details",
+      "description": "Explore comprehensive pricing information for each product. See the current average price across all stores, identify the lowest available price, and view which stores carry the item. The interactive price history graph shows trends over time, helping you spot the best time to buy and understand seasonal variations."
+    },
+    "step5": {
+      "title": "Create Shopping Lists",
+      "description": "Organize your purchases with smart shopping lists. Add items you need and share lists with family members or roommates so everyone can contribute. Our comparison feature analyzes your entire list and shows you which stores offer the best overall value, helping you save time and money on every shopping trip."
+    }
+  },
+  "tips": {
+    "title": "Pro Tips for Better Results",
+    "tip1": {
+      "title": "Submit Accurate Prices",
+      "description": "Always double-check prices before submitting. Accurate data helps everyone and increases your trust score!"
+    },
+    "tip2": {
+      "title": "Build Your Trust Score",
+      "description": "Regular contributions and quality submissions earn you trust points. Reach 100+ to auto-approve your products!"
+    },
+    "tip3": {
+      "title": "Share with Friends",
+      "description": "Invite friends and family to join. Shared lists make shopping easier and help build a better database!"
+    }
+  },
+  "cta": {
+    "title": "Ready to Get Started?",
+    "description": "Join thousands of smart shoppers who are saving money every day with PriceMon. It's completely free!",
+    "createAccount": "Create Free Account",
+    "learnMore": "Learn More About Us"
+  }
+}

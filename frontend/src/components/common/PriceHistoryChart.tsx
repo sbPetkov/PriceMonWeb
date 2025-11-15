@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -42,6 +43,7 @@ const PriceHistoryChart = ({
   currentPeriod = 'all',
   className = ''
 }: PriceHistoryChartProps) => {
+  const { t } = useTranslation('products');
   const symbol = currency === 'BGN' ? 'лв' : '€';
   const [selectedPrice, setSelectedPrice] = useState<ProductPrice | null>(null);
 
@@ -70,10 +72,10 @@ const PriceHistoryChart = ({
   const today = startOfDay(new Date());
 
   if (currentPeriod === 'week') {
-    const weekAgo = subDays(today, 6); // 7 days including today
+    const weekAgo = subDays(today, 7); // 8 days including today (to show all prices from 7 days ago)
     dateRange = eachDayOfInterval({ start: weekAgo, end: today });
   } else if (currentPeriod === 'month') {
-    const monthAgo = subDays(today, 29); // 30 days including today
+    const monthAgo = subDays(today, 30); // 31 days including today (to show all prices from 30 days ago)
     dateRange = eachDayOfInterval({ start: monthAgo, end: today });
   } else {
     // 'all' - from first price to today
@@ -220,7 +222,7 @@ const PriceHistoryChart = ({
   if (allPrices.length === 0) {
     return (
       <div className={`text-center py-8 ${className}`}>
-        <p className="text-gray-500">No price history available for this period</p>
+        <p className="text-gray-500">{t('priceHistoryChart.noPriceHistory')}</p>
       </div>
     );
   }
@@ -230,7 +232,7 @@ const PriceHistoryChart = ({
       {/* Period Selector */}
       {onPeriodChange && (
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900">Price History</h3>
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900">{t('priceHistoryChart.title')}</h3>
           <div className="flex gap-1.5 sm:gap-2 w-full sm:w-auto">
             <button
               onClick={() => onPeriodChange('week')}
@@ -240,7 +242,7 @@ const PriceHistoryChart = ({
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              Week
+              {t('priceHistoryChart.week')}
             </button>
             <button
               onClick={() => onPeriodChange('month')}
@@ -250,7 +252,7 @@ const PriceHistoryChart = ({
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              Month
+              {t('priceHistoryChart.month')}
             </button>
             <button
               onClick={() => onPeriodChange('all')}
@@ -260,7 +262,7 @@ const PriceHistoryChart = ({
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              All
+              {t('priceHistoryChart.all')}
             </button>
           </div>
         </div>
@@ -285,7 +287,7 @@ const PriceHistoryChart = ({
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-gray-900">Price Details</h3>
+              <h3 className="text-xl font-bold text-gray-900">{t('priceHistoryChart.priceDetailsTitle')}</h3>
               <button
                 onClick={() => setSelectedPrice(null)}
                 className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -298,7 +300,7 @@ const PriceHistoryChart = ({
 
             {/* Price */}
             <div className="mb-6 text-center py-4 bg-primary-50 rounded-lg">
-              <div className="text-sm text-gray-600 mb-1">Price</div>
+              <div className="text-sm text-gray-600 mb-1">{t('priceHistoryChart.priceLabel')}</div>
               <div className="text-4xl font-bold text-primary">
                 {convertPrice(selectedPrice).toFixed(2)} {symbol}
               </div>
@@ -311,7 +313,7 @@ const PriceHistoryChart = ({
                   {selectedPrice.store.name.substring(0, 2).toUpperCase()}
                 </div>
                 <div className="flex-1">
-                  <div className="text-sm text-gray-600">Store</div>
+                  <div className="text-sm text-gray-600">{t('priceHistoryChart.storeLabel')}</div>
                   <div className="font-semibold text-gray-900">{selectedPrice.store.name}</div>
                 </div>
               </div>
@@ -323,7 +325,7 @@ const PriceHistoryChart = ({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                   <div className="flex-1">
-                    <div className="text-sm text-gray-600">Location</div>
+                    <div className="text-sm text-gray-600">{t('priceHistoryChart.locationLabel')}</div>
                     <div className="font-medium text-gray-900">
                       {selectedPrice.store.address && <div>{selectedPrice.store.address}</div>}
                       {selectedPrice.store.city && <div className="text-sm text-gray-600 mt-0.5">{selectedPrice.store.city}</div>}
@@ -337,7 +339,7 @@ const PriceHistoryChart = ({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
                 <div className="flex-1">
-                  <div className="text-sm text-gray-600">Submitted</div>
+                  <div className="text-sm text-gray-600">{t('priceHistoryChart.submittedLabel')}</div>
                   <div className="font-medium text-gray-900">
                     {format(parseISO(selectedPrice.created_at), 'MMM dd, yyyy HH:mm')}
                   </div>
@@ -350,7 +352,7 @@ const PriceHistoryChart = ({
               onClick={() => setSelectedPrice(null)}
               className="w-full mt-6 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 rounded-lg transition-colors"
             >
-              Close
+              {t('priceHistoryChart.close')}
             </button>
           </div>
         </div>
@@ -359,28 +361,28 @@ const PriceHistoryChart = ({
       {/* Statistics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 mt-3 sm:mt-4">
         <div className="bg-white rounded-lg p-3 sm:p-4 shadow-sm border border-gray-200">
-          <div className="text-xs sm:text-sm text-gray-600 mb-1">Lowest Price</div>
+          <div className="text-xs sm:text-sm text-gray-600 mb-1">{t('priceHistoryChart.lowestPrice')}</div>
           <div className="text-base sm:text-xl font-bold text-green-600">
             {minPrice.toFixed(2)} {symbol}
           </div>
         </div>
 
         <div className="bg-white rounded-lg p-3 sm:p-4 shadow-sm border border-gray-200">
-          <div className="text-xs sm:text-sm text-gray-600 mb-1">Highest Price</div>
+          <div className="text-xs sm:text-sm text-gray-600 mb-1">{t('priceHistoryChart.highestPrice')}</div>
           <div className="text-base sm:text-xl font-bold text-red-600">
             {maxPrice.toFixed(2)} {symbol}
           </div>
         </div>
 
         <div className="bg-white rounded-lg p-3 sm:p-4 shadow-sm border border-gray-200">
-          <div className="text-xs sm:text-sm text-gray-600 mb-1">Average Price</div>
+          <div className="text-xs sm:text-sm text-gray-600 mb-1">{t('priceHistoryChart.averagePrice')}</div>
           <div className="text-base sm:text-xl font-bold text-blue-600">
             {avgPrice.toFixed(2)} {symbol}
           </div>
         </div>
 
         <div className="bg-white rounded-lg p-3 sm:p-4 shadow-sm border border-gray-200">
-          <div className="text-xs sm:text-sm text-gray-600 mb-1">Price Trend</div>
+          <div className="text-xs sm:text-sm text-gray-600 mb-1">{t('priceHistoryChart.priceTrend')}</div>
           <div
             className={`text-base sm:text-xl font-bold flex items-center gap-1 ${
               isStable ? 'text-gray-600' : isIncreasing ? 'text-red-600' : 'text-green-600'
@@ -391,7 +393,7 @@ const PriceHistoryChart = ({
                 <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14" />
                 </svg>
-                Stable
+                {t('priceHistoryChart.stable')}
               </>
             ) : isIncreasing ? (
               <>

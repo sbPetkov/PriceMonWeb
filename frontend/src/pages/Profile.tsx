@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import ContactModal from '../components/ContactModal';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 const Profile = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation(['auth', 'common']);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
@@ -44,8 +47,8 @@ const Profile = () => {
       {/* Header with gradient background */}
       <div className={`bg-gradient-to-r ${badge?.color || 'from-primary to-primary-600'} pt-8 pb-20`}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-2xl font-bold text-white mb-2">Profile</h1>
-          <p className="text-white/80 text-sm">Manage your account and preferences</p>
+          <h1 className="text-2xl font-bold text-white mb-2">{t('auth:profile.title')}</h1>
+          <p className="text-white/80 text-sm">{t('auth:profile.settings')}</p>
         </div>
       </div>
 
@@ -66,7 +69,7 @@ const Profile = () => {
                 <div className={`inline-flex items-center gap-2 mt-2 px-3 py-1 rounded-full bg-gradient-to-r ${badge?.color}`}>
                   <span className="text-lg">{badge?.emoji}</span>
                   <span className={`text-sm font-semibold ${badge?.textColor}`}>
-                    {user.trust_level} Member
+                    {user.trust_level} {t('auth:profile.member')}
                   </span>
                 </div>
               </div>
@@ -76,19 +79,19 @@ const Profile = () => {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div className="text-center p-4 bg-gradient-to-br from-primary-50 to-primary-100 rounded-lg">
                 <div className="text-2xl font-bold text-primary">{user.trust_score}</div>
-                <div className="text-xs text-gray-600 mt-1">Trust Score</div>
+                <div className="text-xs text-gray-600 mt-1">{t('auth:profile.trustScore')}</div>
               </div>
               <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-lg">
                 <div className="text-2xl font-bold text-green-600">{user.total_products_added}</div>
-                <div className="text-xs text-gray-600 mt-1">Products</div>
+                <div className="text-xs text-gray-600 mt-1">{t('auth:profile.productsAdded')}</div>
               </div>
               <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg">
                 <div className="text-2xl font-bold text-blue-600">{user.total_prices_added}</div>
-                <div className="text-xs text-gray-600 mt-1">Prices</div>
+                <div className="text-xs text-gray-600 mt-1">{t('auth:profile.pricesSubmitted')}</div>
               </div>
               <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg">
                 <div className="text-xl font-bold text-purple-600">{user.preferred_currency}</div>
-                <div className="text-xs text-gray-600 mt-1">Currency</div>
+                <div className="text-xs text-gray-600 mt-1">{t('auth:profile.currency')}</div>
               </div>
             </div>
           </div>
@@ -96,10 +99,20 @@ const Profile = () => {
 
         {/* Settings & Actions */}
         <div className="space-y-4 mb-6">
+          {/* Language Settings */}
+          <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div className="p-4 border-b border-gray-100">
+              <h3 className="font-semibold text-gray-900">Language / Език</h3>
+            </div>
+            <div className="p-6">
+              <LanguageSwitcher />
+            </div>
+          </div>
+
           {/* Account Settings */}
           <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
             <div className="p-4 border-b border-gray-100">
-              <h3 className="font-semibold text-gray-900">Account Settings</h3>
+              <h3 className="font-semibold text-gray-900">{t('auth:profile.settings')}</h3>
             </div>
             <div className="divide-y divide-gray-100">
               <button
@@ -113,8 +126,8 @@ const Profile = () => {
                     </svg>
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">Edit Profile</p>
-                    <p className="text-sm text-gray-500">Update info, password & preferences</p>
+                    <p className="font-medium text-gray-900">{t('auth:profile.editProfile')}</p>
+                    <p className="text-sm text-gray-500">{t('auth:profile.editProfileDesc')}</p>
                   </div>
                 </div>
                 <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -133,8 +146,8 @@ const Profile = () => {
                     </svg>
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">My Products</p>
-                    <p className="text-sm text-gray-500">View products you've added</p>
+                    <p className="font-medium text-gray-900">{t('auth:profile.myProducts')}</p>
+                    <p className="text-sm text-gray-500">{t('auth:profile.myProductsDesc')}</p>
                   </div>
                 </div>
                 <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -153,8 +166,8 @@ const Profile = () => {
                     </svg>
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">Contact Us</p>
-                    <p className="text-sm text-gray-500">Send us a message or feedback</p>
+                    <p className="font-medium text-gray-900">{t('navigation:menu.contact')}</p>
+                    <p className="text-sm text-gray-500">{t('auth:profile.contactDesc')}</p>
                   </div>
                 </div>
                 <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -173,8 +186,8 @@ const Profile = () => {
                     </svg>
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">Install App</p>
-                    <p className="text-sm text-gray-500">Add PriceMon to your home screen</p>
+                    <p className="font-medium text-gray-900">{t('auth:profile.installApp')}</p>
+                    <p className="text-sm text-gray-500">{t('auth:profile.installAppDesc')}</p>
                   </div>
                 </div>
                 <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -187,7 +200,7 @@ const Profile = () => {
           {/* Trust Score Info */}
           <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
             <div className="p-4 border-b border-gray-100">
-              <h3 className="font-semibold text-gray-900">Trust Score</h3>
+              <h3 className="font-semibold text-gray-900">{t('auth:profile.trustScoreTitle')}</h3>
             </div>
             <div className="p-4">
               <div className="flex items-start gap-3 text-sm text-gray-600">
@@ -195,16 +208,16 @@ const Profile = () => {
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                 </svg>
                 <div>
-                  <p className="font-medium text-gray-900 mb-2">How to increase your trust score:</p>
+                  <p className="font-medium text-gray-900 mb-2">{t('auth:profile.trustScoreHow')}</p>
                   <ul className="space-y-1 list-disc list-inside">
-                    <li>Add new products to the database</li>
-                    <li>Submit accurate prices regularly</li>
-                    <li>Verify other users' prices</li>
-                    <li>Build a history of quality contributions</li>
+                    <li>{t('auth:profile.trustTip1')}</li>
+                    <li>{t('auth:profile.trustTip2')}</li>
+                    <li>{t('auth:profile.trustTip3')}</li>
+                    <li>{t('auth:profile.trustTip4')}</li>
                   </ul>
                   <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                     <p className="text-xs text-yellow-800">
-                      <strong>Pro tip:</strong> Reach 100+ trust score to have your products auto-approved!
+                      <strong>{t('auth:profile.trustProTip')}</strong> {t('auth:profile.trustProTipDesc')}
                     </p>
                   </div>
                 </div>
@@ -223,8 +236,8 @@ const Profile = () => {
                     </svg>
                   </div>
                   <div>
-                    <p className="font-semibold text-white">Admin Panel</p>
-                    <p className="text-sm text-white/80">Moderate content</p>
+                    <p className="font-semibold text-white">{t('auth:profile.adminPanel')}</p>
+                    <p className="text-sm text-white/80">{t('auth:profile.adminPanelDesc')}</p>
                   </div>
                 </div>
               </div>
@@ -242,8 +255,8 @@ const Profile = () => {
                       </svg>
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">Pending Products</p>
-                      <p className="text-sm text-gray-500">Review submitted products</p>
+                      <p className="font-medium text-gray-900">{t('auth:profile.pendingProducts')}</p>
+                      <p className="text-sm text-gray-500">{t('auth:profile.pendingProductsDesc')}</p>
                     </div>
                   </div>
                   <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -263,8 +276,8 @@ const Profile = () => {
                       </svg>
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">Flagged Prices</p>
-                      <p className="text-sm text-gray-500">Review prices with 3+ negative votes</p>
+                      <p className="font-medium text-gray-900">{t('auth:profile.flaggedPrices')}</p>
+                      <p className="text-sm text-gray-500">{t('auth:profile.flaggedPricesDesc')}</p>
                     </div>
                   </div>
                   <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -285,13 +298,10 @@ const Profile = () => {
                   </svg>
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                  Love What We're Building?
+                  {t('auth:profile.supportTitle')}
                 </h3>
                 <p className="text-gray-600 max-w-2xl mx-auto leading-relaxed">
-                  This project is made with passion and runs completely free for everyone!
-                  If you find it helpful and want to support its growth, a small contribution
-                  would mean the world to us. Every coffee helps keep the servers running
-                  and the features coming! ☕
+                  {t('auth:profile.supportDesc')}
                 </p>
               </div>
 
@@ -321,12 +331,12 @@ const Profile = () => {
                     <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd" />
                   </svg>
-                  Support via Revolut
+                  {t('auth:profile.supportRevolut')}
                 </a>
               </div>
 
               <p className="text-center text-sm text-gray-500 mt-6">
-                💝 Your support, no matter how small, makes a huge difference! Thank you for being awesome!
+                {t('auth:profile.supportThanks')}
               </p>
             </div>
           </div>
@@ -343,14 +353,14 @@ const Profile = () => {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                Logging out...
+                {t('common:buttons.loading')}
               </>
             ) : (
               <>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
-                Sign Out
+                {t('navigation:menu.logout')}
               </>
             )}
           </button>

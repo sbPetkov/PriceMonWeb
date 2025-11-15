@@ -1,33 +1,65 @@
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const BottomNavigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation('navigation');
 
   const tabs = [
     {
-      name: 'Home',
+      nameKey: 'main.home',
       path: '/',
-      icon: (active: boolean) => (
+      mobileIcon: (active: boolean) => (
         <svg
-          className={`w-6 h-6 ${active ? 'text-primary' : 'text-gray-500'}`}
-          fill={active ? 'currentColor' : 'none'}
+          className={`w-6 h-6 ${active ? 'text-gray-700' : 'text-gray-600'}`}
+          fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
         >
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            strokeWidth={active ? 0 : 2}
+            strokeWidth={active ? 2.5 : 2}
+            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+          />
+        </svg>
+      ),
+      desktopIcon: (active: boolean) => (
+        <svg
+          className={`w-6 h-6 ${active ? 'text-primary' : 'text-gray-500'}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={active ? 2.5 : 2}
             d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
           />
         </svg>
       ),
     },
     {
-      name: 'Scan',
+      nameKey: 'main.scan',
       path: '/scan',
-      icon: (active: boolean) => (
+      mobileIcon: (active: boolean) => (
+        <svg
+          className={`w-6 h-6 ${active ? 'text-gray-800' : 'text-gray-600'}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
+          />
+        </svg>
+      ),
+      desktopIcon: (active: boolean) => (
         <svg
           className={`w-6 h-6 ${active ? 'text-primary' : 'text-gray-500'}`}
           fill="none"
@@ -44,9 +76,24 @@ const BottomNavigation = () => {
       ),
     },
     {
-      name: 'Lists',
+      nameKey: 'main.lists',
       path: '/shopping-lists',
-      icon: (active: boolean) => (
+      mobileIcon: (active: boolean) => (
+        <svg
+          className={`w-6 h-6 ${active ? 'text-gray-800' : 'text-gray-600'}`}
+          fill={active ? 'currentColor' : 'none'}
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={active ? 0 : 2}
+            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+          />
+        </svg>
+      ),
+      desktopIcon: (active: boolean) => (
         <svg
           className={`w-6 h-6 ${active ? 'text-primary' : 'text-gray-500'}`}
           fill={active ? 'currentColor' : 'none'}
@@ -63,9 +110,24 @@ const BottomNavigation = () => {
       ),
     },
     {
-      name: 'Profile',
+      nameKey: 'main.profile',
       path: '/profile',
-      icon: (active: boolean) => (
+      mobileIcon: (active: boolean) => (
+        <svg
+          className={`w-6 h-6 ${active ? 'text-gray-800' : 'text-gray-600'}`}
+          fill={active ? 'currentColor' : 'none'}
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={active ? 0 : 2}
+            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+          />
+        </svg>
+      ),
+      desktopIcon: (active: boolean) => (
         <svg
           className={`w-6 h-6 ${active ? 'text-primary' : 'text-gray-500'}`}
           fill={active ? 'currentColor' : 'none'}
@@ -96,26 +158,34 @@ const BottomNavigation = () => {
 
   return (
     <>
-      {/* Mobile Bottom Navigation */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
-        <div className="grid grid-cols-4 h-16">
-          {tabs.map((tab) => {
-            const active = isActive(tab.path);
-            return (
-              <button
-                key={tab.path}
-                onClick={() => handleNavigation(tab.path)}
-                className={`flex flex-col items-center justify-center gap-1 transition-colors ${
-                  active ? 'text-primary' : 'text-gray-500'
-                }`}
-              >
-                {tab.icon(active)}
-                <span className={`text-xs font-medium ${active ? 'text-primary' : 'text-gray-600'}`}>
-                  {tab.name}
-                </span>
-              </button>
-            );
-          })}
+      {/* Mobile Bottom Navigation - Revolut Style */}
+      <div className="md:hidden fixed bottom-4 left-4 right-4 z-50">
+        <div className="bg-white/80 backdrop-blur-xl rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.12)] border border-gray-200/50 px-3 py-1.5">
+          <div className="grid grid-cols-4 gap-1">
+            {tabs.map((tab) => {
+              const active = isActive(tab.path);
+              return (
+                <button
+                  key={tab.path}
+                  onClick={() => handleNavigation(tab.path)}
+                  className={`flex flex-col items-center justify-center gap-0.5 py-2 px-2 rounded-full transition-all duration-300 ${
+                    active
+                      ? 'bg-gray-100 shadow-sm'
+                      : 'hover:bg-gray-50'
+                  }`}
+                >
+                  <div className={`transition-all duration-300 ${active ? 'scale-110' : 'scale-100'}`}>
+                    {tab.mobileIcon(active)}
+                  </div>
+                  <span className={`text-[9px] font-medium transition-colors ${
+                    active ? 'text-gray-800' : 'text-gray-600'
+                  }`}>
+                    {t(tab.nameKey)}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
@@ -142,8 +212,8 @@ const BottomNavigation = () => {
                       : 'text-gray-700 hover:bg-gray-100'
                   }`}
                 >
-                  {tab.icon(active)}
-                  <span>{tab.name}</span>
+                  {tab.desktopIcon(active)}
+                  <span>{t(tab.nameKey)}</span>
                 </button>
               );
             })}

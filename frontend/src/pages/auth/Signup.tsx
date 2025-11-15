@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { getFieldErrors } from '../../services/api';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import AuthFooter from '../../components/AuthFooter';
+import PublicNavbar from '../../components/PublicNavbar';
 import type { RegisterRequest } from '../../types';
 
 const Signup: React.FC = () => {
+  const { t } = useTranslation('auth');
   const { register, error: authError, clearError } = useAuth();
 
   const [formData, setFormData] = useState<RegisterRequest>({
@@ -50,21 +53,21 @@ const Signup: React.FC = () => {
 
     // Required fields
     if (!formData.email.trim()) {
-      errors.email = 'Email is required';
+      errors.email = t('messages.emailRequired');
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      errors.email = 'Invalid email address';
+      errors.email = t('messages.invalidEmail');
     }
 
     if (!formData.password) {
-      errors.password = 'Password is required';
+      errors.password = t('messages.passwordRequired');
     } else if (formData.password.length < 8) {
-      errors.password = 'Password must be at least 8 characters';
+      errors.password = t('messages.weakPassword');
     }
 
     if (!formData.password_confirm) {
-      errors.password_confirm = 'Please confirm your password';
+      errors.password_confirm = t('messages.passwordConfirmRequired');
     } else if (formData.password !== formData.password_confirm) {
-      errors.password_confirm = 'Passwords do not match';
+      errors.password_confirm = t('messages.passwordMismatch');
     }
 
     setFieldErrors(errors);
@@ -95,44 +98,48 @@ const Signup: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
-      {/* Left side - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-secondary-500 to-secondary-700 p-12 items-center justify-center">
+    <div className="min-h-screen flex flex-col">
+      {/* Public Navigation */}
+      <PublicNavbar />
+
+      <div className="flex-1 flex flex-col lg:flex-row">
+        {/* Left side - Branding */}
+        <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-secondary-500 to-secondary-700 p-12 items-center justify-center">
         <div className="max-w-md text-white">
-          <h1 className="text-5xl font-bold mb-6">Join PriceMon</h1>
+          <h1 className="text-5xl font-bold mb-6">{t('signup.welcome')}</h1>
           <p className="text-xl mb-8 text-secondary-50">
-            Start tracking prices and saving money today. It's free!
+            {t('signup.branding.tagline')}
           </p>
           <div className="space-y-4">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-2xl">
                 ✓
               </div>
-              <p className="text-secondary-50">No credit card required</p>
+              <p className="text-secondary-50">{t('signup.branding.feature1')}</p>
             </div>
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-2xl">
                 ✓
               </div>
-              <p className="text-secondary-50">Community-driven pricing</p>
+              <p className="text-secondary-50">{t('signup.branding.feature2')}</p>
             </div>
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-2xl">
                 ✓
               </div>
-              <p className="text-secondary-50">Earn rewards for contributions</p>
+              <p className="text-secondary-50">{t('signup.branding.feature3')}</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Right side - Signup Form */}
-      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-12 bg-background overflow-y-auto">
-        <div className="w-full max-w-md py-8">
+        {/* Right side - Signup Form */}
+        <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-12 bg-background overflow-y-auto">
+          <div className="w-full max-w-md py-8">
           {/* Mobile branding */}
           <div className="lg:hidden text-center mb-8">
             <h1 className="text-4xl font-bold text-primary mb-2">PriceMon</h1>
-            <p className="text-text-secondary">Create your free account</p>
+            <p className="text-text-secondary">{t('signup.createFreeAccount')}</p>
           </div>
 
           {/* Signup Card */}
@@ -147,11 +154,11 @@ const Signup: React.FC = () => {
                 </div>
 
                 <h2 className="text-2xl font-bold text-text-primary mb-3">
-                  Check Your Email! 📧
+                  {t('signup.success.title')}
                 </h2>
 
                 <p className="text-text-secondary mb-6">
-                  We've sent a verification link to:
+                  {t('signup.success.sentTo')}
                 </p>
 
                 <p className="font-medium text-primary mb-6">
@@ -160,25 +167,25 @@ const Signup: React.FC = () => {
 
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-left">
                   <p className="text-sm text-blue-900 font-medium mb-2">
-                    📌 Next Steps:
+                    {t('signup.success.nextSteps')}
                   </p>
                   <ol className="text-sm text-blue-800 space-y-2 list-decimal list-inside">
-                    <li>Check your email inbox (and spam folder)</li>
-                    <li>Click the verification link in the email</li>
-                    <li>Return here to log in</li>
+                    <li>{t('signup.success.step1')}</li>
+                    <li>{t('signup.success.step2')}</li>
+                    <li>{t('signup.success.step3')}</li>
                   </ol>
                 </div>
 
                 <Link to="/login">
                   <Button variant="primary" size="lg" fullWidth>
-                    Go to Login
+                    {t('signup.success.goToLogin')}
                   </Button>
                 </Link>
 
                 <p className="mt-4 text-sm text-text-secondary">
-                  Didn't receive the email?{' '}
+                  {t('signup.success.didntReceive')}{' '}
                   <button className="text-primary hover:underline font-medium">
-                    Resend verification email
+                    {t('signup.success.resendEmail')}
                   </button>
                 </p>
               </div>
@@ -186,10 +193,10 @@ const Signup: React.FC = () => {
               <>
                 <div className="mb-6">
                   <h2 className="text-2xl sm:text-3xl font-bold text-text-primary mb-2">
-                    Create Account
+                    {t('signup.createAccountTitle')}
                   </h2>
                   <p className="text-text-secondary">
-                    Join thousands of smart shoppers
+                    {t('signup.joinSmartShoppers')}
                   </p>
                 </div>
 
@@ -209,8 +216,8 @@ const Signup: React.FC = () => {
                 id="email"
                 name="email"
                 type="email"
-                label="Email"
-                placeholder="your@email.com"
+                label={t('signup.email')}
+                placeholder={t('signup.emailPlaceholder')}
                 value={formData.email}
                 onChange={handleChange}
                 error={fieldErrors.email}
@@ -224,8 +231,8 @@ const Signup: React.FC = () => {
                   id="first_name"
                   name="first_name"
                   type="text"
-                  label="First Name"
-                  placeholder="John"
+                  label={t('signup.firstName')}
+                  placeholder={t('signup.firstNamePlaceholder')}
                   value={formData.first_name}
                   onChange={handleChange}
                   error={fieldErrors.first_name}
@@ -236,8 +243,8 @@ const Signup: React.FC = () => {
                   id="last_name"
                   name="last_name"
                   type="text"
-                  label="Last Name"
-                  placeholder="Doe"
+                  label={t('signup.lastName')}
+                  placeholder={t('signup.lastNamePlaceholder')}
                   value={formData.last_name}
                   onChange={handleChange}
                   error={fieldErrors.last_name}
@@ -246,44 +253,55 @@ const Signup: React.FC = () => {
               </div>
 
               <div className="w-full">
-                <label
-                  htmlFor="preferred_currency"
-                  className="block text-sm font-medium text-text-primary mb-2"
-                >
-                  Preferred Currency
+                <label className="block text-sm font-medium text-text-primary mb-2">
+                  {t('signup.preferredCurrency')}
                 </label>
-                <select
-                  id="preferred_currency"
-                  name="preferred_currency"
-                  value={formData.preferred_currency}
-                  onChange={handleChange}
-                  className="input"
-                >
-                  <option value="BGN">BGN (Bulgarian Lev)</option>
-                  <option value="EUR">EUR (Euro)</option>
-                </select>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, preferred_currency: 'BGN' }))}
+                    className={`flex-1 px-4 py-3 rounded-lg font-medium transition-all ${
+                      formData.preferred_currency === 'BGN'
+                        ? 'bg-primary text-white shadow-md'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    BGN (Bulgarian Lev)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, preferred_currency: 'EUR' }))}
+                    className={`flex-1 px-4 py-3 rounded-lg font-medium transition-all ${
+                      formData.preferred_currency === 'EUR'
+                        ? 'bg-primary text-white shadow-md'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    EUR (Euro)
+                  </button>
+                </div>
               </div>
 
               <Input
                 id="password"
                 name="password"
                 type="password"
-                label="Password"
-                placeholder="At least 8 characters"
+                label={t('signup.password')}
+                placeholder={t('signup.passwordPlaceholder')}
                 value={formData.password}
                 onChange={handleChange}
                 error={fieldErrors.password}
                 required
                 autoComplete="new-password"
-                helperText="Use at least 8 characters"
+                helperText={t('signup.passwordHelper')}
               />
 
               <Input
                 id="password_confirm"
                 name="password_confirm"
                 type="password"
-                label="Confirm Password"
-                placeholder="Re-enter your password"
+                label={t('signup.confirmPassword')}
+                placeholder={t('signup.confirmPasswordPlaceholder')}
                 value={formData.password_confirm}
                 onChange={handleChange}
                 error={fieldErrors.password_confirm}
@@ -299,7 +317,7 @@ const Signup: React.FC = () => {
                   fullWidth
                   isLoading={isLoading}
                 >
-                  Create Account
+                  {t('signup.submit')}
                 </Button>
               </div>
             </form>
@@ -312,7 +330,7 @@ const Signup: React.FC = () => {
                     </div>
                     <div className="relative flex justify-center text-sm">
                       <span className="px-4 bg-surface text-text-secondary">
-                        Already have an account?
+                        {t('signup.hasAccount')}
                       </span>
                     </div>
                   </div>
@@ -326,7 +344,7 @@ const Signup: React.FC = () => {
                     size="lg"
                     fullWidth
                   >
-                    Sign In
+                    {t('signup.signIn')}
                   </Button>
                 </Link>
               </>
@@ -335,18 +353,19 @@ const Signup: React.FC = () => {
 
           {/* Footer */}
           <p className="mt-6 text-center text-sm text-text-secondary">
-            By creating an account, you agree to our{' '}
+            {t('signup.termsText')}{' '}
             <a href="#" className="text-primary hover:text-primary-600 transition-colors">
-              Terms
+              {t('signup.termsLink')}
             </a>{' '}
-            and{' '}
+            {t('signup.and')}{' '}
             <a href="#" className="text-primary hover:text-primary-600 transition-colors">
-              Privacy Policy
+              {t('signup.privacyLink')}
             </a>
           </p>
 
           {/* Public Pages Footer */}
           <AuthFooter />
+          </div>
         </div>
       </div>
     </div>

@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { lookupBarcode } from '../../services/productService';
 import { getErrorMessage } from '../../services/api';
 import BarcodeScanner from '../../components/common/BarcodeScanner';
 
 const BarcodeSearch = () => {
+  const { t } = useTranslation('products');
   const navigate = useNavigate();
   const location = useLocation();
   const [barcode, setBarcode] = useState('');
@@ -35,7 +37,7 @@ const BarcodeSearch = () => {
     e.preventDefault();
 
     if (!barcode.trim()) {
-      setError('Please enter a barcode');
+      setError(t('barcodeSearch.barcodeRequired'));
       return;
     }
 
@@ -51,10 +53,10 @@ const BarcodeSearch = () => {
           navigate(`/products/${response.product.id}`);
         } else if (response.status === 'pending') {
           // Product exists but pending approval
-          setError('This product is pending approval. Please wait for admin review.');
+          setError(t('barcodeSearch.pending'));
         } else if (response.status === 'rejected') {
           // Product was rejected
-          setError('This product was rejected. Please contact support if you believe this is an error.');
+          setError(t('barcodeSearch.rejected'));
         }
       } else {
         // Product not found → go to add product page with barcode pre-filled
@@ -84,9 +86,9 @@ const BarcodeSearch = () => {
         if (response.status === 'approved' && response.product) {
           navigate(`/products/${response.product.id}`);
         } else if (response.status === 'pending') {
-          setError('This product is pending approval. Please wait for admin review.');
+          setError(t('barcodeSearch.pending'));
         } else if (response.status === 'rejected') {
-          setError('This product was rejected. Please contact support if you believe this is an error.');
+          setError(t('barcodeSearch.rejected'));
         }
       } else {
         navigate(`/products/add?barcode=${scannedBarcode}`);
@@ -123,10 +125,10 @@ const BarcodeSearch = () => {
             </svg>
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Scan Barcode
+            {t('barcodeSearch.title')}
           </h1>
           <p className="text-gray-600">
-            Enter a product barcode to search or add a new product
+            {t('barcodeSearch.subtitle')}
           </p>
         </div>
 
@@ -142,7 +144,7 @@ const BarcodeSearch = () => {
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              Manual Entry
+              {t('barcodeSearch.manualEntry')}
             </button>
             <button
               type="button"
@@ -153,7 +155,7 @@ const BarcodeSearch = () => {
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              Camera Scanner
+              {t('barcodeSearch.cameraScanner')}
             </button>
           </div>
         </div>
@@ -168,7 +170,7 @@ const BarcodeSearch = () => {
                 htmlFor="barcode"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Barcode Number
+                {t('barcodeSearch.barcodeLabel')}
               </label>
               <div className="relative">
                 <input
@@ -178,7 +180,7 @@ const BarcodeSearch = () => {
                   pattern="[0-9]*"
                   value={barcode}
                   onChange={handleInputChange}
-                  placeholder="Enter barcode (e.g., 5901234123457)"
+                  placeholder={t('barcodeSearch.barcodePlaceholder')}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-lg font-mono"
                   disabled={isLoading}
                 />
@@ -199,7 +201,7 @@ const BarcodeSearch = () => {
                 </div>
               </div>
               <p className="mt-2 text-sm text-gray-500">
-                Typical barcodes are 8, 12, or 13 digits long
+                {t('barcodeSearch.barcodeHelper')}
               </p>
             </div>
 
@@ -249,7 +251,7 @@ const BarcodeSearch = () => {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     ></path>
                   </svg>
-                  Searching...
+                  {t('barcodeSearch.searching')}
                 </>
               ) : (
                 <>
@@ -266,7 +268,7 @@ const BarcodeSearch = () => {
                       d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                     />
                   </svg>
-                  Search Product
+                  {t('barcodeSearch.searchButton')}
                 </>
               )}
             </button>
@@ -287,11 +289,11 @@ const BarcodeSearch = () => {
                 />
               </svg>
               <div>
-                <p className="font-medium text-gray-900 mb-1">How it works:</p>
+                <p className="font-medium text-gray-900 mb-1">{t('barcodeSearch.howItWorksTitle')}</p>
                 <ul className="space-y-1 list-disc list-inside">
-                  <li>If the product exists, you'll see its details and can add a price</li>
-                  <li>If not found, you'll be able to add it to the database</li>
-                  <li>All new products are reviewed before going live</li>
+                  <li>{t('barcodeSearch.howItWorks1')}</li>
+                  <li>{t('barcodeSearch.howItWorks2')}</li>
+                  <li>{t('barcodeSearch.howItWorks3')}</li>
                 </ul>
               </div>
             </div>
@@ -310,8 +312,8 @@ const BarcodeSearch = () => {
                     <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
                   <div>
-                    <p className="font-medium mb-1">Camera requires HTTPS</p>
-                    <p>For security reasons, camera access requires a secure connection (HTTPS). If the camera doesn't work, please use <strong>Manual Entry</strong> instead.</p>
+                    <p className="font-medium mb-1">{t('barcodeSearch.httpsWarningTitle')}</p>
+                    <p>{t('barcodeSearch.httpsWarningDesc')}</p>
                   </div>
                 </div>
               </div>

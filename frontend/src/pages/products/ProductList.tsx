@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { getProducts, getCategoryTree } from '../../services/productService';
 import { getErrorMessage } from '../../services/api';
@@ -7,6 +8,7 @@ import type { ProductList as ProductListType, CategoryTree } from '../../types';
 import ProductCard from '../../components/products/ProductCard';
 
 const ProductList = () => {
+  const { t } = useTranslation('products');
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -92,8 +94,8 @@ const ProductList = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">My Products</h1>
-              <p className="text-gray-600 mt-1">Products you've submitted to PriceMon</p>
+              <h1 className="text-3xl font-bold text-gray-900">{t('productList.title')}</h1>
+              <p className="text-gray-600 mt-1">{t('productList.subtitle')}</p>
             </div>
             <button
               onClick={() => navigate('/scan')}
@@ -107,7 +109,7 @@ const ProductList = () => {
                   d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
                 />
               </svg>
-              Scan Barcode
+              {t('actions.scanBarcode')}
             </button>
           </div>
         </div>
@@ -123,7 +125,7 @@ const ProductList = () => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search products by name, brand, or barcode..."
+                placeholder={t('productList.searchPlaceholder')}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               />
             </div>
@@ -138,7 +140,7 @@ const ProductList = () => {
                 }}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
               >
-                <option value="">All Categories</option>
+                <option value="">{t('productList.allCategories')}</option>
                 {flattenCategories(categories).map((cat) => (
                   <option key={cat.id} value={cat.id}>
                     {cat.icon} {cat.name}
@@ -157,12 +159,12 @@ const ProductList = () => {
                 }}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
               >
-                <option value="-created_at">Newest First</option>
-                <option value="created_at">Oldest First</option>
-                <option value="name">Name (A-Z)</option>
-                <option value="-name">Name (Z-A)</option>
-                <option value="brand">Brand (A-Z)</option>
-                <option value="-brand">Brand (Z-A)</option>
+                <option value="-created_at">{t('productList.sortNewest')}</option>
+                <option value="created_at">{t('productList.sortOldest')}</option>
+                <option value="name">{t('productList.sortNameAsc')}</option>
+                <option value="-name">{t('productList.sortNameDesc')}</option>
+                <option value="brand">{t('productList.sortBrandAsc')}</option>
+                <option value="-brand">{t('productList.sortBrandDesc')}</option>
               </select>
             </div>
           </form>
@@ -204,7 +206,7 @@ const ProductList = () => {
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               ></path>
             </svg>
-            <p className="text-gray-600">Loading products...</p>
+            <p className="text-gray-600">{t('productList.loading')}</p>
           </div>
         ) : products.length === 0 ? (
           <div className="text-center py-12">
@@ -217,16 +219,16 @@ const ProductList = () => {
               />
             </svg>
             <p className="text-gray-500 text-lg mb-4">
-              {searchQuery || selectedCategory ? 'No products found' : "You haven't added any products yet"}
+              {searchQuery || selectedCategory ? t('productList.noResults') : t('productList.noProducts')}
             </p>
             <p className="text-gray-400 mb-6">
-              {searchQuery || selectedCategory ? 'Try adjusting your search or filters' : 'Start contributing by adding your first product!'}
+              {searchQuery || selectedCategory ? t('productList.noResultsDesc') : t('productList.noProductsDesc')}
             </p>
             <button
               onClick={() => navigate('/scan')}
               className="bg-primary hover:bg-primary/90 text-white font-semibold py-2 px-6 rounded-lg transition-all"
             >
-              Add Your First Product
+              {t('productList.addFirst')}
             </button>
           </div>
         ) : (
@@ -249,7 +251,7 @@ const ProductList = () => {
                   onClick={() => setPage((p) => p + 1)}
                   className="bg-white hover:bg-gray-50 text-gray-700 font-semibold py-2 px-6 rounded-lg border border-gray-300 transition-all"
                 >
-                  Load More
+                  {t('productList.loadMore')}
                 </button>
               </div>
             )}

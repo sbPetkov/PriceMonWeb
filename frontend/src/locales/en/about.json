@@ -1,0 +1,27 @@
+{
+  "header": {
+    "title": "About PriceMon",
+    "subtitle": "Your trusted companion for transparent price monitoring"
+  },
+  "mission": {
+    "title": "Our Mission",
+    "description": "PriceMon is built on a simple yet powerful idea: everyone deserves access to transparent, real-time pricing information for the products they buy every day. In a world where prices can vary dramatically between stores and change without notice, we believe consumers should be empowered with the knowledge to make informed purchasing decisions. Our platform brings together a community of users who contribute and share pricing data, creating a comprehensive database that helps everyone save money and shop smarter."
+  },
+  "findingDeals": {
+    "title": "Finding Great Deals",
+    "description": "With PriceMon, finding the best deals on everyday products has never been easier. Our platform aggregates pricing information from multiple stores and locations, allowing you to compare prices instantly. Whether you're shopping for groceries, household items, or personal care products, you can quickly identify which stores offer the best value. Our intelligent price tracking shows you historical trends, helping you understand if you're getting a good deal or if it's better to wait. Plus, with our shopping list feature, you can plan your purchases strategically across different stores to maximize your savings."
+  },
+  "inflation": {
+    "title": "Measure Real Inflation",
+    "description": "Forget about generic inflation statistics that don't reflect your actual spending. PriceMon gives you the power to track inflation that matters to YOU - based on the specific products you actually buy. By monitoring the prices of items in your personal shopping list over time, you can see exactly how much more (or less) you're spending compared to previous months or years. This personalized inflation metric is far more meaningful than broad economic indicators because it's based on your real consumption patterns. Understanding your personal inflation rate helps you budget more effectively, adjust your spending habits, and advocate for fair pricing in your community."
+  },
+  "community": {
+    "title": "Built by the Community",
+    "description": "PriceMon thrives thanks to our amazing community of users who contribute pricing data. Every price you submit helps your neighbors make better shopping decisions. We've built a trust system that rewards accurate contributions and maintains data quality, ensuring everyone can rely on the information they see. Together, we're creating transparency in retail pricing and putting the power back in the hands of consumers."
+  },
+  "cta": {
+    "title": "Ready to Start Saving?",
+    "signUp": "Sign Up Free",
+    "learnMore": "Learn How It Works"
+  }
+}

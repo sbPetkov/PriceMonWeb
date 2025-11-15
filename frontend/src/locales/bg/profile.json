@@ -1,0 +1,33 @@
+{
+  "back": "Назад",
+  "editProfile": {
+    "title": "Редактирай профил",
+    "subtitle": "Актуализирай личната си информация и настройки"
+  },
+  "personalInfo": {
+    "title": "Лична информация",
+    "email": "Имейл (не може да бъде променен)",
+    "firstName": "Собствено име",
+    "firstNamePlaceholder": "Въведи собствено име",
+    "lastName": "Фамилия",
+    "lastNamePlaceholder": "Въведи фамилия",
+    "preferredCurrency": "Предпочитана валута",
+    "currencyBGN": "BGN (Български лев)",
+    "currencyEUR": "EUR (Евро)",
+    "saveChanges": "Запази промените",
+    "updating": "Актуализиране...",
+    "successMessage": "Профилът е актуализиран успешно!"
+  },
+  "changePassword": {
+    "title": "Смяна на парола",
+    "currentPassword": "Текуща парола",
+    "currentPasswordPlaceholder": "Въведи текуща парола",
+    "newPassword": "Нова парола",
+    "newPasswordPlaceholder": "Въведи нова парола",
+    "confirmPassword": "Потвърди новата парола",
+    "confirmPasswordPlaceholder": "Потвърди новата парола",
+    "submitButton": "Смени паролата",
+    "changingPassword": "Смяна на парола...",
+    "passwordsDoNotMatch": "Паролите не съвпадат"
+  }
+}

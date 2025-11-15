@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import PublicNavbar from '../components/PublicNavbar';
 
 const InstallApp = () => {
-  const navigate = useNavigate();
+  const { t } = useTranslation('install');
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isInstallable, setIsInstallable] = useState(false);
   const [showInstalled, setShowInstalled] = useState(false);
@@ -50,19 +51,12 @@ const InstallApp = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Public Navigation */}
+      <PublicNavbar />
+
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Header */}
         <div className="mb-6">
-          <button
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-text-secondary hover:text-primary transition-colors mb-4"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Back
-          </button>
-
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-20 h-20 bg-primary/10 rounded-full mb-4">
               <svg className="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -70,10 +64,10 @@ const InstallApp = () => {
               </svg>
             </div>
             <h1 className="text-3xl font-bold text-text-primary mb-2">
-              Install PriceMon
+              {t('title')}
             </h1>
             <p className="text-text-secondary max-w-2xl mx-auto">
-              Install PriceMon on your device for a faster, native app experience. Access it anytime from your home screen!
+              {t('subtitle')}
             </p>
           </div>
         </div>
@@ -86,8 +80,8 @@ const InstallApp = () => {
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
               <div>
-                <h3 className="font-semibold text-green-900 mb-1">App Already Installed!</h3>
-                <p className="text-sm text-green-800">PriceMon is installed on your device. You're already enjoying the full app experience!</p>
+                <h3 className="font-semibold text-green-900 mb-1">{t('alreadyInstalled.title')}</h3>
+                <p className="text-sm text-green-800">{t('alreadyInstalled.description')}</p>
               </div>
             </div>
           </div>
@@ -98,10 +92,10 @@ const InstallApp = () => {
           <div className="card mb-6 bg-primary/5 border-2 border-primary">
             <div className="text-center">
               <h3 className="text-xl font-bold text-text-primary mb-3">
-                Ready to Install!
+                {t('readyToInstall.title')}
               </h3>
               <p className="text-text-secondary mb-4">
-                Your browser supports one-click installation. Click below to add PriceMon to your home screen.
+                {t('readyToInstall.description')}
               </p>
               <button
                 onClick={handleInstallClick}
@@ -110,7 +104,7 @@ const InstallApp = () => {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
-                Install PriceMon Now
+                {t('readyToInstall.button')}
               </button>
             </div>
           </div>
@@ -118,7 +112,7 @@ const InstallApp = () => {
 
         {/* Benefits Section */}
         <div className="card mb-6">
-          <h2 className="text-xl font-bold text-text-primary mb-4">Why Install?</h2>
+          <h2 className="text-xl font-bold text-text-primary mb-4">{t('benefits.title')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -127,8 +121,8 @@ const InstallApp = () => {
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-text-primary">Faster Performance</h3>
-                <p className="text-sm text-text-secondary">Optimized app experience with instant loading</p>
+                <h3 className="font-semibold text-text-primary">{t('benefits.performance.title')}</h3>
+                <p className="text-sm text-text-secondary">{t('benefits.performance.description')}</p>
               </div>
             </div>
 
@@ -139,8 +133,8 @@ const InstallApp = () => {
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-text-primary">Full Screen Mode</h3>
-                <p className="text-sm text-text-secondary">No browser UI - more space for scanning</p>
+                <h3 className="font-semibold text-text-primary">{t('benefits.fullscreen.title')}</h3>
+                <p className="text-sm text-text-secondary">{t('benefits.fullscreen.description')}</p>
               </div>
             </div>
 
@@ -151,8 +145,8 @@ const InstallApp = () => {
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-text-primary">Home Screen Access</h3>
-                <p className="text-sm text-text-secondary">Launch directly like a native app</p>
+                <h3 className="font-semibold text-text-primary">{t('benefits.homeScreen.title')}</h3>
+                <p className="text-sm text-text-secondary">{t('benefits.homeScreen.description')}</p>
               </div>
             </div>
 
@@ -163,8 +157,8 @@ const InstallApp = () => {
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-text-primary">Better Privacy</h3>
-                <p className="text-sm text-text-secondary">Isolated from browser history and cookies</p>
+                <h3 className="font-semibold text-text-primary">{t('benefits.privacy.title')}</h3>
+                <p className="text-sm text-text-secondary">{t('benefits.privacy.description')}</p>
               </div>
             </div>
           </div>
@@ -181,8 +175,8 @@ const InstallApp = () => {
                 </svg>
               </div>
               <div>
-                <h2 className="text-xl font-bold text-text-primary">iPhone / iPad (Safari)</h2>
-                <p className="text-sm text-text-secondary">Most common for iOS users</p>
+                <h2 className="text-xl font-bold text-text-primary">{t('ios.title')}</h2>
+                <p className="text-sm text-text-secondary">{t('ios.subtitle')}</p>
               </div>
             </div>
 
@@ -190,29 +184,29 @@ const InstallApp = () => {
               <li className="flex items-start gap-3">
                 <div className="w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold">1</div>
                 <div>
-                  <p className="font-medium text-text-primary">Tap the Share button</p>
-                  <p className="text-sm">Look for the <svg className="inline w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"/></svg> icon at the bottom of Safari</p>
+                  <p className="font-medium text-text-primary">{t('ios.step1.title')}</p>
+                  <p className="text-sm">{t('ios.step1.description')}</p>
                 </div>
               </li>
               <li className="flex items-start gap-3">
                 <div className="w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold">2</div>
                 <div>
-                  <p className="font-medium text-text-primary">Select "Add to Home Screen"</p>
-                  <p className="text-sm">Scroll down and tap the option with a <span className="font-bold">+</span> icon</p>
+                  <p className="font-medium text-text-primary">{t('ios.step2.title')}</p>
+                  <p className="text-sm">{t('ios.step2.description')}</p>
                 </div>
               </li>
               <li className="flex items-start gap-3">
                 <div className="w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold">3</div>
                 <div>
-                  <p className="font-medium text-text-primary">Confirm and Install</p>
-                  <p className="text-sm">The app name will be "PriceMon" - tap "Add" to finish</p>
+                  <p className="font-medium text-text-primary">{t('ios.step3.title')}</p>
+                  <p className="text-sm">{t('ios.step3.description')}</p>
                 </div>
               </li>
               <li className="flex items-start gap-3">
                 <div className="w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center flex-shrink-0">✓</div>
                 <div>
-                  <p className="font-medium text-text-primary">Done! Find the app on your home screen</p>
-                  <p className="text-sm">PriceMon will now open full-screen like a native app</p>
+                  <p className="font-medium text-text-primary">{t('ios.step4.title')}</p>
+                  <p className="text-sm">{t('ios.step4.description')}</p>
                 </div>
               </li>
             </ol>
@@ -231,8 +225,8 @@ const InstallApp = () => {
                 </svg>
               </div>
               <div>
-                <h2 className="text-xl font-bold text-text-primary">Android (Chrome)</h2>
-                <p className="text-sm text-text-secondary">Easiest installation method</p>
+                <h2 className="text-xl font-bold text-text-primary">{t('android.title')}</h2>
+                <p className="text-sm text-text-secondary">{t('android.subtitle')}</p>
               </div>
             </div>
 
@@ -240,34 +234,34 @@ const InstallApp = () => {
               <li className="flex items-start gap-3">
                 <div className="w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold">1</div>
                 <div>
-                  <p className="font-medium text-text-primary">Look for the install banner</p>
-                  <p className="text-sm">Chrome will show an "Install PriceMon" banner at the bottom of the screen</p>
+                  <p className="font-medium text-text-primary">{t('android.step1.title')}</p>
+                  <p className="text-sm">{t('android.step1.description')}</p>
                 </div>
               </li>
               <li className="flex items-start gap-3">
                 <div className="w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold">2</div>
                 <div>
-                  <p className="font-medium text-text-primary">Tap "Install"</p>
-                  <p className="text-sm">Or tap the menu (⋮) → "Add to Home screen" / "Install app"</p>
+                  <p className="font-medium text-text-primary">{t('android.step2.title')}</p>
+                  <p className="text-sm">{t('android.step2.description')}</p>
                 </div>
               </li>
               <li className="flex items-start gap-3">
                 <div className="w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center flex-shrink-0">✓</div>
                 <div>
-                  <p className="font-medium text-text-primary">Done! Open from your app drawer</p>
-                  <p className="text-sm">PriceMon appears alongside your other apps</p>
+                  <p className="font-medium text-text-primary">{t('android.step3.title')}</p>
+                  <p className="text-sm">{t('android.step3.description')}</p>
                 </div>
               </li>
             </ol>
 
             {isInstallable && (
               <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
-                <p className="text-sm text-green-800 mb-2 font-medium">You can install right now:</p>
+                <p className="text-sm text-green-800 mb-2 font-medium">{t('android.installNowPrompt')}</p>
                 <button
                   onClick={handleInstallClick}
                   className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition-all"
                 >
-                  Install PriceMon
+                  {t('android.installButton')}
                 </button>
               </div>
             )}
@@ -282,8 +276,8 @@ const InstallApp = () => {
                 </svg>
               </div>
               <div>
-                <h2 className="text-xl font-bold text-text-primary">Android (Firefox)</h2>
-                <p className="text-sm text-text-secondary">Alternative browser</p>
+                <h2 className="text-xl font-bold text-text-primary">{t('firefox.title')}</h2>
+                <p className="text-sm text-text-secondary">{t('firefox.subtitle')}</p>
               </div>
             </div>
 
@@ -291,22 +285,22 @@ const InstallApp = () => {
               <li className="flex items-start gap-3">
                 <div className="w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold">1</div>
                 <div>
-                  <p className="font-medium text-text-primary">Tap the menu button (⋮)</p>
-                  <p className="text-sm">Located in the top right corner of Firefox</p>
+                  <p className="font-medium text-text-primary">{t('firefox.step1.title')}</p>
+                  <p className="text-sm">{t('firefox.step1.description')}</p>
                 </div>
               </li>
               <li className="flex items-start gap-3">
                 <div className="w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold">2</div>
                 <div>
-                  <p className="font-medium text-text-primary">Select "Install"</p>
-                  <p className="text-sm">Look for the "Install" or "Add to Home screen" option with a phone icon</p>
+                  <p className="font-medium text-text-primary">{t('firefox.step2.title')}</p>
+                  <p className="text-sm">{t('firefox.step2.description')}</p>
                 </div>
               </li>
               <li className="flex items-start gap-3">
                 <div className="w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center flex-shrink-0">✓</div>
                 <div>
-                  <p className="font-medium text-text-primary">Confirm installation</p>
-                  <p className="text-sm">Firefox will add PriceMon to your home screen</p>
+                  <p className="font-medium text-text-primary">{t('firefox.step3.title')}</p>
+                  <p className="text-sm">{t('firefox.step3.description')}</p>
                 </div>
               </li>
             </ol>
@@ -321,8 +315,8 @@ const InstallApp = () => {
                 </svg>
               </div>
               <div>
-                <h2 className="text-xl font-bold text-text-primary">Desktop (Chrome / Edge)</h2>
-                <p className="text-sm text-text-secondary">Works on Windows, Mac, Linux</p>
+                <h2 className="text-xl font-bold text-text-primary">{t('desktop.title')}</h2>
+                <p className="text-sm text-text-secondary">{t('desktop.subtitle')}</p>
               </div>
             </div>
 
@@ -330,22 +324,22 @@ const InstallApp = () => {
               <li className="flex items-start gap-3">
                 <div className="w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold">1</div>
                 <div>
-                  <p className="font-medium text-text-primary">Look for the install icon</p>
-                  <p className="text-sm">A <svg className="inline w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg> icon will appear in the address bar</p>
+                  <p className="font-medium text-text-primary">{t('desktop.step1.title')}</p>
+                  <p className="text-sm">{t('desktop.step1.description')}</p>
                 </div>
               </li>
               <li className="flex items-start gap-3">
                 <div className="w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold">2</div>
                 <div>
-                  <p className="font-medium text-text-primary">Click "Install"</p>
-                  <p className="text-sm">Or use menu (⋮) → "Install PriceMon..."</p>
+                  <p className="font-medium text-text-primary">{t('desktop.step2.title')}</p>
+                  <p className="text-sm">{t('desktop.step2.description')}</p>
                 </div>
               </li>
               <li className="flex items-start gap-3">
                 <div className="w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center flex-shrink-0">✓</div>
                 <div>
-                  <p className="font-medium text-text-primary">Launch as desktop app</p>
-                  <p className="text-sm">PriceMon opens in its own window, separate from your browser</p>
+                  <p className="font-medium text-text-primary">{t('desktop.step3.title')}</p>
+                  <p className="text-sm">{t('desktop.step3.description')}</p>
                 </div>
               </li>
             </ol>
@@ -359,15 +353,15 @@ const InstallApp = () => {
               <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
             </svg>
             <div>
-              <h3 className="font-semibold text-blue-900 mb-1">Need Help?</h3>
+              <h3 className="font-semibold text-blue-900 mb-1">{t('help.title')}</h3>
               <p className="text-sm text-blue-800 mb-2">
-                If you don't see the install option, try:
+                {t('help.description')}
               </p>
               <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
-                <li>Refreshing the page</li>
-                <li>Using the browser's menu (⋮ or ⋯)</li>
-                <li>Making sure you're using a supported browser (Safari, Chrome, Firefox, Edge)</li>
-                <li>Checking that you're on HTTPS (secure connection)</li>
+                <li>{t('help.tip1')}</li>
+                <li>{t('help.tip2')}</li>
+                <li>{t('help.tip3')}</li>
+                <li>{t('help.tip4')}</li>
               </ul>
             </div>
           </div>

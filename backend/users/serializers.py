@@ -18,6 +18,7 @@ class UserSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'preferred_currency',
+            'preferred_language',
             'trust_score',
             'trust_level',
             'total_products_added',
@@ -90,6 +91,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'preferred_currency',
+            'preferred_language',
         ]
 
 
