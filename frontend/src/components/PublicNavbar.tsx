@@ -26,6 +26,7 @@ const PublicNavbar = () => {
   };
 
   const navLinks = [
+    { path: '/try-scanner', label: '🔍 Try Scanner', highlight: true },
     { path: '/about', label: t('nav.about') },
     { path: '/how-it-works', label: t('nav.howItWorks') },
     { path: '/install', label: t('nav.installApp') },
@@ -53,7 +54,11 @@ const PublicNavbar = () => {
                 to={link.path}
                 className={`px-4 py-2 rounded-lg font-medium transition-all ${
                   isActive(link.path)
-                    ? 'bg-primary text-white'
+                    ? link.highlight
+                      ? 'bg-secondary-500 text-white shadow-md'
+                      : 'bg-primary text-white'
+                    : link.highlight
+                    ? 'bg-secondary-50 text-secondary-700 hover:bg-secondary-100 border border-secondary-200'
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}
               >
@@ -145,7 +150,11 @@ const PublicNavbar = () => {
                   onClick={() => setIsMenuOpen(false)}
                   className={`block px-4 py-2 rounded-lg font-medium transition-all ${
                     isActive(link.path)
-                      ? 'bg-primary text-white'
+                      ? link.highlight
+                        ? 'bg-secondary-500 text-white shadow-md'
+                        : 'bg-primary text-white'
+                      : link.highlight
+                      ? 'bg-secondary-50 text-secondary-700 border border-secondary-200'
                       : 'text-gray-700 hover:bg-gray-100'
                   }`}
                 >

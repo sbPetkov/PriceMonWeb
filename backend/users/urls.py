@@ -15,6 +15,7 @@ from .views import (
     verify_password_reset_link,
     contact_support,
     contact_public,
+    google_login,
 )
 
 app_name = 'users'
@@ -25,6 +26,7 @@ urlpatterns = [
     path('login/', CustomTokenObtainPairView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('google/', google_login, name='google_login'),
 
     # Email verification
     path('verify-email/<str:uid>/<str:token>/', verify_email, name='verify_email'),

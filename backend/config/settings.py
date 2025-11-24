@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',  # Required by allauth
 
     # Third party apps
     'rest_framework',
@@ -57,12 +58,24 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
 
+    # Django allauth
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+
+    # dj-rest-auth
+    'dj_rest_auth',
+    'dj_rest_auth.registration',
+
     # Local apps
     'users',
     'products',
     'shopping',
     'admin_panel',
 ]
+
+SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -73,6 +86,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',  # Required by django-allauth
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -250,3 +264,47 @@ if not DEBUG:
     # SECURE_HSTS_SECONDS = 31536000
     # SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     # SECURE_HSTS_PRELOAD = True
+
+# Django Allauth Configuration
+AUTHENTICATION_BACKENDS = [
+    # Django backend (username/password)
+    'django.contrib.auth.backends.ModelBackend',
+    # Allauth backend (social auth)
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+# Allauth settings (updated for newer versions)
+ACCOUNT_EMAIL_VERIFICATION = 'none'  # We handle verification separately
+ACCOUNT_LOGIN_METHODS = {'email'}  # Login with email only
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']  # Required signup fields
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
+SOCIALACCOUNT_AUTO_SIGNUP = True
+
+# Social Account Providers
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+        'APP': {
+            'client_id': os.getenv('GOOGLE_CLIENT_ID', ''),
+            'secret': os.getenv('GOOGLE_CLIENT_SECRET', ''),
+            'key': ''
+        }
+    }
+}
+
+# dj-rest-auth settings
+REST_AUTH = {
+    'USE_JWT': True,
+    'JWT_AUTH_HTTPONLY': False,
+    'USER_DETAILS_SERIALIZER': 'users.serializers.UserSerializer',
+    'JWT_AUTH_COOKIE': None,
+    'JWT_AUTH_REFRESH_COOKIE': None,
+    'TOKEN_MODEL': None,  # We're using JWT, not DRF tokens
+}

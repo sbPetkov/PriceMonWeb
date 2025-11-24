@@ -8,6 +8,8 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import authenticate
 from django.core.mail import send_mail
 from django.conf import settings
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
 
 from .models import User
 from .serializers import (
@@ -436,6 +438,81 @@ Reply directly to this email to respond to the user.
 
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
+def google_login(request):
+    """
+    Authenticate user with Google OAuth token.
+    POST /api/auth/google/
+
+    Expected body:
+    {
+        "token": "google_oauth_token"
+    }
+
+    Returns JWT tokens and user data.
+    """
+    token = request.data.get('token')
+
+    if not token:
+        return Response({
+            'error': 'Google token is required'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        # Verify the Google token
+        idinfo = id_token.verify_oauth2_token(
+            token,
+            google_requests.Request(),
+            settings.SOCIALACCOUNT_PROVIDERS['google']['APP']['client_id']
+        )
+
+        # Token is valid, extract user info
+        email = idinfo.get('email')
+        given_name = idinfo.get('given_name', '')
+        family_name = idinfo.get('family_name', '')
+
+        if not email:
+            return Response({
+                'error': 'Email not provided by Google'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Check if user exists
+        user, created = User.objects.get_or_create(
+            email=email,
+            defaults={
+                'first_name': given_name,
+                'last_name': family_name,
+                'email_verified': True,  # Google accounts are already verified
+            }
+        )
+
+        # If user already exists but wasn't verified, mark as verified
+        if not created and not user.email_verified:
+            user.email_verified = True
+            user.save()
+
+        # Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
+
+        return Response({
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+            'user': UserSerializer(user).data
+        }, status=status.HTTP_200_OK)
+
+    except ValueError as e:
+        # Token verification failed
+        return Response({
+            'error': 'Invalid Google token'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        # Other errors
+        return Response({
+            'error': f'Authentication failed: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
 def contact_public(request):
     """
     Send a contact message from public (non-authenticated) users.
@@ -510,3 +587,78 @@ Reply directly to this email to respond to the visitor.
     return Response({
         'message': 'Your message has been sent successfully! We\'ll get back to you soon.'
     }, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def google_login(request):
+    """
+    Authenticate user with Google OAuth token.
+    POST /api/auth/google/
+
+    Expected body:
+    {
+        "token": "google_oauth_token"
+    }
+
+    Returns JWT tokens and user data.
+    """
+    token = request.data.get('token')
+
+    if not token:
+        return Response({
+            'error': 'Google token is required'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        # Verify the Google token
+        idinfo = id_token.verify_oauth2_token(
+            token,
+            google_requests.Request(),
+            settings.SOCIALACCOUNT_PROVIDERS['google']['APP']['client_id']
+        )
+
+        # Token is valid, extract user info
+        email = idinfo.get('email')
+        given_name = idinfo.get('given_name', '')
+        family_name = idinfo.get('family_name', '')
+
+        if not email:
+            return Response({
+                'error': 'Email not provided by Google'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Check if user exists
+        user, created = User.objects.get_or_create(
+            email=email,
+            defaults={
+                'first_name': given_name,
+                'last_name': family_name,
+                'email_verified': True,  # Google accounts are already verified
+            }
+        )
+
+        # If user already exists but wasn't verified, mark as verified
+        if not created and not user.email_verified:
+            user.email_verified = True
+            user.save()
+
+        # Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
+
+        return Response({
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+            'user': UserSerializer(user).data
+        }, status=status.HTTP_200_OK)
+
+    except ValueError as e:
+        # Token verification failed
+        return Response({
+            'error': 'Invalid Google token'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        # Other errors
+        return Response({
+            'error': f'Authentication failed: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

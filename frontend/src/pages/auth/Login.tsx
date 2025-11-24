@@ -1,17 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { getFieldErrors } from '../../services/api';
+import api from '../../services/api';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import AuthFooter from '../../components/AuthFooter';
 import PublicNavbar from '../../components/PublicNavbar';
+import LegalModal from '../../components/common/LegalModal';
 
 const Login: React.FC = () => {
   const { t } = useTranslation('auth');
   const navigate = useNavigate();
-  const { login, error: authError, clearError } = useAuth();
+  const { login, setUser, error: authError, clearError } = useAuth();
 
   const [formData, setFormData] = useState({
     email: '',
@@ -21,6 +23,8 @@ const Login: React.FC = () => {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -73,6 +77,72 @@ const Login: React.FC = () => {
       setIsLoading(false);
     }
   };
+
+  // Handle Google login response
+  const handleGoogleLogin = async (response: any) => {
+    try {
+      setIsLoading(true);
+      clearError();
+
+      // Send the Google token to our backend
+      const { data } = await api.post('/auth/google/', {
+        token: response.credential
+      });
+
+      // Store tokens
+      localStorage.setItem('access_token', data.access);
+      localStorage.setItem('refresh_token', data.refresh);
+
+      // Set user in context
+      setUser(data.user);
+
+      // Redirect to home
+      navigate('/');
+    } catch (err: any) {
+      console.error('Google login failed:', err);
+      const message = err.response?.data?.error || 'Google login failed. Please try again.';
+      // You might want to show this error in the UI
+      alert(message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Initialize Google Sign-In
+  useEffect(() => {
+    // Load the Google Identity Services library
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
+
+    script.onload = () => {
+      // Initialize Google Sign-In
+      if (window.google) {
+        window.google.accounts.id.initialize({
+          client_id: '703616712607-mj9p47i65t9gsol47un2nm4srue1p301.apps.googleusercontent.com',
+          callback: handleGoogleLogin,
+        });
+
+        // Render the button
+        window.google.accounts.id.renderButton(
+          document.getElementById('google-signin-button'),
+          {
+            theme: 'outline',
+            size: 'large',
+            width: 350,
+            text: 'continue_with',
+          }
+        );
+      }
+    };
+
+    return () => {
+      // Cleanup
+      document.body.removeChild(script);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -237,6 +307,21 @@ const Login: React.FC = () => {
               </Button>
             </form>
 
+            {/* Divider OR */}
+            <div className="mt-6 mb-6">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-4 bg-surface text-text-secondary">OR</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Google Login Button */}
+            <div id="google-signin-button" className="flex justify-center"></div>
+
             {/* Divider */}
             <div className="mt-8 mb-6">
               <div className="relative">
@@ -262,18 +347,38 @@ const Login: React.FC = () => {
                 {t('login.createAccount')}
               </Button>
             </Link>
+
+            {/* Try Demo */}
+            <div className="mt-6 text-center">
+              <p className="text-sm text-text-secondary mb-3">Or try it first</p>
+              <Link to="/try-scanner">
+                <button className="inline-flex items-center gap-2 text-primary hover:text-primary-600 font-medium transition-colors">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  Try Scanner Demo
+                </button>
+              </Link>
+            </div>
           </div>
 
           {/* Footer */}
           <p className="mt-8 text-center text-sm text-text-secondary">
             {t('login.termsText')}{' '}
-            <a href="#" className="text-primary hover:text-primary-600 transition-colors">
+            <button
+              onClick={() => setShowTermsModal(true)}
+              className="text-primary hover:text-primary-600 hover:underline transition-colors font-medium"
+            >
               {t('login.termsLink')}
-            </a>{' '}
+            </button>{' '}
             {t('login.and')}{' '}
-            <a href="#" className="text-primary hover:text-primary-600 transition-colors">
+            <button
+              onClick={() => setShowPrivacyModal(true)}
+              className="text-primary hover:text-primary-600 hover:underline transition-colors font-medium"
+            >
               {t('login.privacyLink')}
-            </a>
+            </button>
           </p>
 
           {/* Public Pages Footer */}
@@ -281,6 +386,18 @@ const Login: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Legal Modals */}
+      <LegalModal
+        isOpen={showTermsModal}
+        onClose={() => setShowTermsModal(false)}
+        type="terms"
+      />
+      <LegalModal
+        isOpen={showPrivacyModal}
+        onClose={() => setShowPrivacyModal(false)}
+        type="privacy"
+      />
     </div>
   );
 };

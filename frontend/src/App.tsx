@@ -13,6 +13,8 @@ import ResetPassword from './pages/auth/ResetPassword';
 import About from './pages/public/About';
 import HowItWorks from './pages/public/HowItWorks';
 import ContactUs from './pages/public/ContactUs';
+import TryScanner from './pages/public/TryScanner';
+import TryProductDetails from './pages/public/TryProductDetails';
 import Home from './pages/Home';
 import BarcodeSearch from './pages/products/BarcodeSearch';
 import ProductList from './pages/products/ProductList';
@@ -43,6 +45,10 @@ const App: React.FC = () => {
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/install" element={<InstallApp />} />
           <Route path="/contact" element={<ContactUs />} />
+
+          {/* Try It - Public Demo */}
+          <Route path="/try-scanner" element={<TryScanner />} />
+          <Route path="/try-product/:id" element={<TryProductDetails />} />
 
           {/* Protected routes with MainLayout */}
           <Route

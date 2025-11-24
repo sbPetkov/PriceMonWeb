@@ -70,3 +70,4 @@ htmlcov/
 
 # Keep sample files
 !.env.sample
+backend/import_openfoodfacts.py

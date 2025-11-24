@@ -1,0 +1,50 @@
+Last Updated: November 24, 2025
+Application: PriceMon
+
+1. General Terms
+
+These Terms of Use govern the use of the PriceMon application. By installing or using the application, you accept these terms.
+
+2. Registration and Access
+
+Email registration is required to prevent abuse, automated actions, and mass entry of false data.
+Unregistered users may use limited features (e.g., scanning and browsing) if these features are available.
+
+3. User Content
+
+Users may:
+	•	add products
+	•	enter prices
+	•	create lists
+	•	participate in community improvement of the database
+
+You agree to enter real, accurate information.
+PriceMon reserves the right to remove data that is clearly false or malicious.
+
+4. Prohibited Actions
+
+The following is not permitted:
+	•	entering fake prices or products
+	•	using automated scripts or bots
+	•	attempting to manipulate statistics
+	•	bypassing registration
+	•	actions that violate the law or harm other users
+
+5. Liability
+
+PriceMon provides data entered by users.
+We do not guarantee absolute accuracy or completeness of prices.
+The application serves as a guide, not as official information.
+
+6. Termination of Access
+
+If a user violates the terms, their account may be temporarily or permanently suspended.
+
+7. Changes to Terms
+
+PriceMon may update these terms at any time. For significant changes, a notification will be sent or posted in the application.
+
+8. Contact
+
+For questions regarding the terms:
+email: svilen.b.petkov@gmail.com

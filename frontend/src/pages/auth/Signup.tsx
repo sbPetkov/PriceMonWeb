@@ -1,17 +1,20 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { getFieldErrors } from '../../services/api';
+import api from '../../services/api';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import AuthFooter from '../../components/AuthFooter';
 import PublicNavbar from '../../components/PublicNavbar';
+import LegalModal from '../../components/common/LegalModal';
 import type { RegisterRequest } from '../../types';
 
 const Signup: React.FC = () => {
   const { t } = useTranslation('auth');
-  const { register, error: authError, clearError } = useAuth();
+  const navigate = useNavigate();
+  const { register, setUser, error: authError, clearError } = useAuth();
 
   const [formData, setFormData] = useState<RegisterRequest>({
     email: '',
@@ -26,6 +29,9 @@ const Signup: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState('');
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -70,6 +76,11 @@ const Signup: React.FC = () => {
       errors.password_confirm = t('messages.passwordMismatch');
     }
 
+    // Check if terms are accepted
+    if (!acceptedTerms) {
+      errors.terms = t('legal.acceptTerms');
+    }
+
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -96,6 +107,74 @@ const Signup: React.FC = () => {
       setIsLoading(false);
     }
   };
+
+  // Handle Google signup response
+  const handleGoogleSignup = async (response: any) => {
+    try {
+      setIsLoading(true);
+      clearError();
+
+      // Send the Google token to our backend
+      const { data } = await api.post('/auth/google/', {
+        token: response.credential
+      });
+
+      // Store tokens
+      localStorage.setItem('access_token', data.access);
+      localStorage.setItem('refresh_token', data.refresh);
+
+      // Set user in context
+      setUser(data.user);
+
+      // Redirect to home
+      navigate('/');
+    } catch (err: any) {
+      console.error('Google signup failed:', err);
+      const message = err.response?.data?.error || 'Google signup failed. Please try again.';
+      alert(message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Initialize Google Sign-In
+  useEffect(() => {
+    if (registrationSuccess) return; // Don't initialize if registration was successful
+
+    // Load the Google Identity Services library
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
+
+    script.onload = () => {
+      // Initialize Google Sign-In
+      if (window.google) {
+        window.google.accounts.id.initialize({
+          client_id: '703616712607-mj9p47i65t9gsol47un2nm4srue1p301.apps.googleusercontent.com',
+          callback: handleGoogleSignup,
+        });
+
+        // Render the button
+        window.google.accounts.id.renderButton(
+          document.getElementById('google-signup-button'),
+          {
+            theme: 'outline',
+            size: 'large',
+            width: 350,
+            text: 'signup_with',
+          }
+        );
+      }
+    };
+
+    return () => {
+      // Cleanup - only remove if script exists
+      const scripts = document.querySelectorAll('script[src="https://accounts.google.com/gsi/client"]');
+      scripts.forEach(s => s.remove());
+    };
+  }, [registrationSuccess]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -309,6 +388,54 @@ const Signup: React.FC = () => {
                 autoComplete="new-password"
               />
 
+              {/* Terms and Privacy acceptance */}
+              <div className="space-y-2">
+                <label className="flex items-start cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={acceptedTerms}
+                    onChange={(e) => {
+                      setAcceptedTerms(e.target.checked);
+                      if (fieldErrors.terms) {
+                        setFieldErrors((prev) => {
+                          const newErrors = { ...prev };
+                          delete newErrors.terms;
+                          return newErrors;
+                        });
+                      }
+                    }}
+                    className="w-4 h-4 mt-1 text-primary border-gray-300 rounded focus:ring-primary focus:ring-2"
+                  />
+                  <span className="ml-3 text-sm text-text-secondary">
+                    {t('legal.iAgree')}{' '}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setShowTermsModal(true);
+                      }}
+                      className="text-primary hover:text-primary-600 hover:underline font-medium transition-colors"
+                    >
+                      {t('signup.termsLink')}
+                    </button>
+                    {' '}{t('signup.and')}{' '}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setShowPrivacyModal(true);
+                      }}
+                      className="text-primary hover:text-primary-600 hover:underline font-medium transition-colors"
+                    >
+                      {t('signup.privacyLink')}
+                    </button>
+                  </span>
+                </label>
+                {fieldErrors.terms && (
+                  <p className="text-sm text-red-600 ml-7">{fieldErrors.terms}</p>
+                )}
+              </div>
+
               <div className="pt-2">
                 <Button
                   type="submit"
@@ -321,6 +448,21 @@ const Signup: React.FC = () => {
                 </Button>
               </div>
             </form>
+
+                {/* Divider OR */}
+                <div className="mt-6 mb-6">
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="px-4 bg-surface text-text-secondary">OR</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Google Signup Button */}
+                <div id="google-signup-button" className="flex justify-center"></div>
 
                 {/* Divider */}
                 <div className="mt-6 mb-6">
@@ -368,6 +510,18 @@ const Signup: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Legal Modals */}
+      <LegalModal
+        isOpen={showTermsModal}
+        onClose={() => setShowTermsModal(false)}
+        type="terms"
+      />
+      <LegalModal
+        isOpen={showPrivacyModal}
+        onClose={() => setShowPrivacyModal(false)}
+        type="privacy"
+      />
     </div>
   );
 };

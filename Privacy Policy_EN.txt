@@ -1,0 +1,79 @@
+Last Updated: November 24, 2025
+Application: PriceMon
+
+1. Introduction
+
+This Privacy Policy describes how the PriceMon application collects, uses, stores, and protects users' personal data. We comply with all requirements of the General Data Protection Regulation (GDPR) in the European Union.
+
+2. What Personal Data We Collect
+
+PriceMon collects a minimum amount of personal data necessary for the operation of the application:
+	•	Email address – used solely for registration, login, and user identification.
+
+We do not collect:
+	•	Names
+	•	Phone number
+	•	Address
+	•	Payment information
+	•	Location
+	•	Contact data
+	•	Sensitive data
+
+3. Non-Personal Data We Process
+
+For the basic functionality of the application to work, we process the following data:
+	•	Product barcodes
+	•	User-entered product prices
+	•	Shopping lists
+	•	User action history (e.g., "user X added a price to product Y")
+
+This data does not constitute personal information and cannot identify the user outside the application.
+
+4. Why We Collect This Data
+
+Data is collected for the purpose of:
+	•	Registration and account management
+	•	Prevention of abuse (entry of fake or automated data)
+	•	Maintaining accurate price statistics
+	•	Normal operation of the application and its features
+
+We will never use your data for marketing, advertising, or selling to third parties.
+
+5. How We Store Data
+
+Data is stored in a secure database (Supabase) located in the EU.
+We apply standard security measures, including:
+	•	connection encryption (HTTPS),
+	•	access control,
+	•	limited privileges for internal services.
+
+6. Retention Period
+	•	Email is stored while the account exists.
+	•	Upon account deletion, all personal data is permanently removed.
+	•	Public data (prices, products) remain as part of the statistics, but without any connection to a specific user.
+
+7. User Rights (according to GDPR)
+
+You have the right to:
+	•	obtain a copy of stored personal data
+	•	request correction
+	•	request deletion
+	•	object to processing
+	•	withdraw your consent
+	•	file a complaint with the DPA (Data Protection Authority)
+
+For all inquiries:
+email: svilen.b.petkov@gmail.com
+
+8. Sharing Data with Third Parties
+
+We do not share personal data with:
+	•	advertising networks
+	•	external analytics
+	•	partners
+	•	commercial entities
+
+
+9. Changes to the Policy
+
+If the policy changes, an updated version will be published in the application. Continued use means consent to the new terms.
