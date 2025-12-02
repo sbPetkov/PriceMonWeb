@@ -125,22 +125,30 @@ const Login: React.FC = () => {
           callback: handleGoogleLogin,
         });
 
-        // Render the button
-        window.google.accounts.id.renderButton(
-          document.getElementById('google-signin-button'),
-          {
-            theme: 'outline',
-            size: 'large',
-            width: 350,
-            text: 'continue_with',
-          }
-        );
+        // Render the button (with custom wrapper for styling)
+        const buttonDiv = document.getElementById('google-signin-button');
+        if (buttonDiv) {
+          window.google.accounts.id.renderButton(
+            buttonDiv,
+            {
+              theme: 'outline',
+              size: 'large',
+              width: buttonDiv.offsetWidth || 350,
+              text: 'continue_with',
+              shape: 'rectangular',
+              logo_alignment: 'left',
+              locale: 'en' // Force English text
+            }
+          );
+        }
       }
     };
 
     return () => {
       // Cleanup
-      document.body.removeChild(script);
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
     };
   }, []);
 
@@ -319,8 +327,10 @@ const Login: React.FC = () => {
               </div>
             </div>
 
-            {/* Google Login Button */}
-            <div id="google-signin-button" className="flex justify-center"></div>
+            {/* Google Login Button with custom styling wrapper */}
+            <div className="google-button-wrapper">
+              <div id="google-signin-button" className="flex justify-center"></div>
+            </div>
 
             {/* Divider */}
             <div className="mt-8 mb-6">

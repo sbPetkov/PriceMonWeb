@@ -157,15 +157,21 @@ const Signup: React.FC = () => {
         });
 
         // Render the button
-        window.google.accounts.id.renderButton(
-          document.getElementById('google-signup-button'),
-          {
-            theme: 'outline',
-            size: 'large',
-            width: 350,
-            text: 'signup_with',
-          }
-        );
+        const buttonDiv = document.getElementById('google-signup-button');
+        if (buttonDiv) {
+          window.google.accounts.id.renderButton(
+            buttonDiv,
+            {
+              theme: 'outline',
+              size: 'large',
+              width: buttonDiv.offsetWidth || 350,
+              text: 'signup_with',
+              shape: 'rectangular',
+              logo_alignment: 'left',
+              locale: 'en' // Force English text
+            }
+          );
+        }
       }
     };
 
@@ -461,8 +467,10 @@ const Signup: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Google Signup Button */}
-                <div id="google-signup-button" className="flex justify-center"></div>
+                {/* Google Signup Button with custom styling wrapper */}
+                <div className="google-button-wrapper">
+                  <div id="google-signup-button" className="flex justify-center"></div>
+                </div>
 
                 {/* Divider */}
                 <div className="mt-6 mb-6">

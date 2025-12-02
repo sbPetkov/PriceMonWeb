@@ -67,7 +67,7 @@
   "home": {
     "welcome": "Здравей, {{name}}!",
     "subtitle": "Готов си да следиш цени и да пестиш пари?",
-    "trustLevel": "{{level}} Член",
+    "trustLevel": "{{level}} member",
     "trustScore": "Рейтинг",
     "productsAdded": "Добавени продукти",
     "pricesSubmitted": "Подадени цени",

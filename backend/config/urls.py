@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from products.public_views import product_detail, category_list, sitemap_xml, robots_txt
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -24,4 +25,10 @@ urlpatterns = [
     path('api/auth/', include('users.urls')),
     path('api/products/', include('products.urls')),
     path('api/shopping/', include('shopping.urls')),
+
+    # Public SEO-optimized pages (server-side rendered)
+    path('products/<str:barcode>', product_detail, name='public_product_detail'),
+    path('category/<slug:slug>', category_list, name='public_category_list'),
+    path('sitemap.xml', sitemap_xml, name='sitemap'),
+    path('robots.txt', robots_txt, name='robots'),
 ]

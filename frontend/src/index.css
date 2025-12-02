@@ -156,3 +156,24 @@
 .animate-fadeIn {
   animation: fadeIn 0.3s ease-out;
 }
+
+/* Google Sign-In Button Custom Styling */
+.google-button-wrapper {
+  width: 100%;
+}
+
+.google-button-wrapper iframe {
+  width: 100% !important;
+  height: 56px !important; /* Match your lg button size (py-4 = 1rem padding top/bottom + text height) */
+}
+
+.google-button-wrapper iframe > div {
+  border-radius: 0.75rem !important; /* rounded-xl */
+  border-width: 2px !important; /* border-2 */
+  transition: all 0.2s !important;
+}
+
+.google-button-wrapper:hover iframe > div {
+  background-color: #f9fafb !important; /* hover:bg-gray-50 */
+  border-color: #9ca3af !important; /* hover:border-gray-400 */
+}

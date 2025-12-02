@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    {% block meta_tags %}
+    <meta name="description" content="Track product prices across Bulgarian stores. Compare prices, find the best deals, and save money on your shopping.">
+    <meta name="keywords" content="price tracking, Bulgaria, product prices, barcode scanner, shopping deals">
+    {% endblock %}
+
+    {% block og_tags %}
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://price-mon.com{{ request.path }}">
+    <meta property="og:title" content="{% block og_title %}PriceMon - Track Product Prices in Bulgaria{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Track product prices across Bulgarian stores. Compare prices, find the best deals, and save money on your shopping.{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}https://price-mon.com/images/og-default.jpg{% endblock %}">
+    <meta property="og:site_name" content="PriceMon">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://price-mon.com{{ request.path }}">
+    <meta name="twitter:title" content="{% block twitter_title %}PriceMon - Track Product Prices in Bulgaria{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}Track product prices across Bulgarian stores. Compare prices, find the best deals, and save money on your shopping.{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}https://price-mon.com/images/og-default.jpg{% endblock %}">
+    {% endblock %}
+
+    {% block canonical %}
+    <link rel="canonical" href="https://price-mon.com{{ request.path }}">
+    {% endblock %}
+
+    <title>{% block title %}PriceMon - Track Product Prices in Bulgaria{% endblock %}</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+    {% block structured_data %}
+    <!-- Schema.org structured data will be added in child templates -->
+    {% endblock %}
+
+    <!-- Tailwind CSS from CDN for styled public pages -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --primary-color: #DC143C;
+            --secondary-color: #2E7D32;
+            --price-up: #D32F2F;
+            --price-down: #2E7D32;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: #b8102f;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .price-badge {
+            background: linear-gradient(135deg, var(--primary-color), #ff1744);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .price-down-badge {
+            background: linear-gradient(135deg, var(--secondary-color), #4caf50);
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50">
+    <!-- Simple header for public pages -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <nav class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <a href="/" class="flex items-center space-x-2">
+                    <span class="text-2xl font-bold" style="color: var(--primary-color);">PriceMon</span>
+                    <span class="text-sm text-gray-600 hidden sm:inline">Price Tracking in Bulgaria</span>
+                </a>
+                <div class="space-x-4">
+                    <a href="/login" class="text-gray-600 hover:text-gray-900 font-medium" data-i18n="signIn">Sign In</a>
+                    <a href="/signup" class="btn-primary" data-i18n="getStarted">Get Started</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main content -->
+    <main class="container mx-auto px-4 py-8">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Simple footer -->
+    <footer class="bg-white border-t border-gray-200 mt-16">
+        <div class="container mx-auto px-4 py-8">
+            <div class="flex flex-col md:flex-row justify-between items-center text-sm text-gray-600">
+                <div class="mb-4 md:mb-0">
+                    <span class="font-bold" style="color: var(--primary-color);">PriceMon</span> &copy; 2024. Track prices, save money.
+                </div>
+                <div class="flex space-x-6">
+                    <a href="/about" class="hover:text-gray-900" data-i18n="about">About</a>
+                    <a href="/how-it-works" class="hover:text-gray-900" data-i18n="howItWorks">How It Works</a>
+                    <a href="/contact" class="hover:text-gray-900" data-i18n="contact">Contact</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+
+    <!-- Client-side i18n (matches React app approach) -->
+    <script>
+        // Translations object (matches frontend/src/locales structure)
+        const translations = {
+            en: {
+                signIn: 'Sign In',
+                signUp: 'Sign Up',
+                getStarted: 'Get Started',
+                about: 'About',
+                howItWorks: 'How It Works',
+                contact: 'Contact',
+                bestPriceAt: 'Best Price Found At',
+                signUpToTrack: 'Sign Up to Track This Product',
+                alreadyHaveAccount: 'Already have an account?',
+                priceComparison: 'Price Comparison Across Stores',
+                store: 'Store',
+                location: 'Location',
+                price: 'Price',
+                lastUpdated: 'Last Updated',
+                ago: 'ago',
+                priceTrend: 'Price Trend (Last 30 Days)',
+                similarProducts: 'Similar Products',
+                showingProducts: 'Showing {count} products',
+                noProductsYet: 'No Products Yet',
+                beFirstToAdd: 'Be the first to add products in this category!',
+                trackPricesSaveMoney: 'Track prices, save money.',
+                allRightsReserved: 'All rights reserved.',
+                pricesUserSubmitted: 'Prices are user-submitted and verified by the community.',
+                signUpToSubmit: 'to submit prices and help others save money!',
+                brand: 'Brand',
+                barcode: 'Barcode',
+                category: 'Category',
+                home: 'Home',
+                bestPrice: 'Best Price',
+                at: 'at',
+                noImageAvailable: 'No image available',
+                noPricesAvailable: 'No prices yet',
+            },
+            bg: {
+                signIn: 'Влез',
+                signUp: 'Регистрирай се',
+                getStarted: 'Започни',
+                about: 'За нас',
+                howItWorks: 'Как работи',
+                contact: 'Контакти',
+                bestPriceAt: 'Най-добра цена в',
+                signUpToTrack: 'Регистрирай се, за да следиш този продукт',
+                alreadyHaveAccount: 'Вече имаш профил?',
+                priceComparison: 'Сравнение на цени в магазините',
+                store: 'Магазин',
+                location: 'Локация',
+                price: 'Цена',
+                lastUpdated: 'Последна актуализация',
+                ago: 'преди',
+                priceTrend: 'Тренд на цените (последните 30 дни)',
+                similarProducts: 'Подобни продукти',
+                showingProducts: 'Показване на {count} продукта',
+                noProductsYet: 'Все още няма продукти',
+                beFirstToAdd: 'Бъди първият, който добавя продукти в тази категория!',
+                trackPricesSaveMoney: 'Следи цените, пести пари.',
+                allRightsReserved: 'Всички права запазени.',
+                pricesUserSubmitted: 'Цените са добавени от потребители и проверени от общността.',
+                signUpToSubmit: 'за да добавяш цени и да помагаш на другите да пестят!',
+                brand: 'Марка',
+                barcode: 'Баркод',
+                category: 'Категория',
+                home: 'Начало',
+                bestPrice: 'Най-добра цена',
+                at: 'в',
+                noImageAvailable: 'Няма налично изображение',
+                noPricesAvailable: 'Все още няма цени',
+            }
+        };
+
+        // Detect language (same logic as React app: localStorage first, then browser)
+        function detectLanguage() {
+            // Check localStorage (same key as React app uses)
+            const stored = localStorage.getItem('i18nextLng');
+            if (stored && (stored === 'en' || stored === 'bg')) {
+                return stored;
+            }
+
+            // Check browser language
+            const browserLang = navigator.language || navigator.userLanguage;
+            if (browserLang.toLowerCase().startsWith('bg')) {
+                return 'bg';
+            }
+
+            return 'en'; // Default to English
+        }
+
+        // Get current language
+        const currentLang = detectLanguage();
+        const t = translations[currentLang];
+
+        // Update HTML lang attribute
+        document.documentElement.lang = currentLang;
+
+        // Apply translations to elements with data-i18n attribute
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('[data-i18n]').forEach(function(el) {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) {
+                    el.textContent = t[key];
+                }
+            });
+        });
+    </script>
+</body>
+</html>
