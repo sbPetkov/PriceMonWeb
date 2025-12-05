@@ -128,18 +128,22 @@ const Login: React.FC = () => {
         // Render the button (with custom wrapper for styling)
         const buttonDiv = document.getElementById('google-signin-button');
         if (buttonDiv) {
-          window.google.accounts.id.renderButton(
-            buttonDiv,
-            {
-              theme: 'outline',
-              size: 'large',
-              width: buttonDiv.offsetWidth || 350,
-              text: 'continue_with',
-              shape: 'rectangular',
-              logo_alignment: 'left',
-              locale: 'en' // Force English text
-            }
-          );
+          // Wait for next frame to ensure parent width is calculated
+          requestAnimationFrame(() => {
+            const parentWidth = buttonDiv.parentElement?.offsetWidth || 384; // 384px = max-w-md default
+            window.google.accounts.id.renderButton(
+              buttonDiv,
+              {
+                theme: 'outline',
+                size: 'large',
+                width: parentWidth,
+                text: 'continue_with',
+                shape: 'rectangular',
+                logo_alignment: 'left',
+                locale: 'en' // Force English text
+              }
+            );
+          });
         }
       }
     };
@@ -328,8 +332,8 @@ const Login: React.FC = () => {
             </div>
 
             {/* Google Login Button with custom styling wrapper */}
-            <div className="google-button-wrapper">
-              <div id="google-signin-button" className="flex justify-center"></div>
+            <div className="google-button-wrapper w-full">
+              <div id="google-signin-button" className="w-full"></div>
             </div>
 
             {/* Divider */}
